@@ -12,10 +12,11 @@
 namespace LEtudiant\Composer\Installer;
 
 use Composer\Composer;
+use Composer\Downloader\FilesystemException;
 use Composer\Installer\LibraryInstaller;
 use Composer\IO\IOInterface;
-use Composer\Repository\InstalledRepositoryInterface;
 use Composer\Package\PackageInterface;
+use Composer\Repository\InstalledRepositoryInterface;
 use Composer\Util\Filesystem;
 
 /**
@@ -109,7 +110,7 @@ class SharedPackageInstaller extends LibraryInstaller
      *
      * @return string
      */
-    protected function getPackageDistDir(PackageInterface $package)
+    protected function getPackageVendorSymlink(PackageInterface $package)
     {
         return $this->distDir . DIRECTORY_SEPARATOR . $package->getPrettyName();
     }
@@ -121,9 +122,9 @@ class SharedPackageInstaller extends LibraryInstaller
      */
     protected function initializeVendorSymlink(PackageInterface $package)
     {
-        $distDir = $this->getPackageDistDir($package);
+        $symlink = $this->getPackageVendorSymlink($package);
 
-        if (!is_link($distDir)) {
+        if (!is_link($symlink)) {
             $prettyName = $package->getPrettyName();
             $packageParams = explode('/', $prettyName);
             $packageNamespace = substr($prettyName, 0, -strlen($packageParams[sizeof($packageParams) - 1]));
@@ -135,7 +136,7 @@ class SharedPackageInstaller extends LibraryInstaller
                 ''
             ));
 
-            symlink($this->getPackageBasePath($package), $distDir);
+            symlink($this->getPackageBasePath($package), $symlink);
         }
     }
 
@@ -171,7 +172,7 @@ class SharedPackageInstaller extends LibraryInstaller
     {
         // In the case of symlink, just check if the sources folder and the link exist
         if ($package->isDev()) {
-            return is_readable($this->getInstallPath($package)) && is_link($this->getPackageDistDir($package));
+            return is_readable($this->getInstallPath($package)) && is_link($this->getPackageVendorSymlink($package));
         }
 
         return parent::isInstalled($repo, $package);
@@ -217,23 +218,15 @@ class SharedPackageInstaller extends LibraryInstaller
             $this->uninstall($repo, $initial);
         }
 
-        $targetDownloadPath = $this->getInstallPath($target);
-        // If the target package sources folder already exists, simply override the binaries, in case of update
-        if (is_readable($targetDownloadPath)) {
-            $this->installBinaries($target);
-            $repo->addPackage(clone $target);
-        } else {
-            parent::install($repo, $target);
-        }
-
-        if ($target->isDev()) {
-            $this->initializeVendorSymlink($target);
-        }
+        // Install the target package
+        $this->install($repo, $target);
     }
 
     /**
      * @param InstalledRepositoryInterface $repo
      * @param PackageInterface             $package
+     *
+     * @throws FilesystemException
      */
     public function uninstall(InstalledRepositoryInterface $repo, PackageInterface $package)
     {
@@ -264,9 +257,11 @@ class SharedPackageInstaller extends LibraryInstaller
 
             // Delete vendor prefix folder in empty
             if (strpos($package->getName(), '/')) {
-                $packageVendorDir = dirname($this->getPackageDistDir($package));
+                $packageVendorDir = dirname($this->getPackageVendorSymlink($package));
                 if (is_dir($packageVendorDir) && $this->filesystem->isDirEmpty($packageVendorDir)) {
-                    @rmdir($packageVendorDir);
+                    if (!rmdir($packageVendorDir)) {
+                        throw new FilesystemException('Unable to remove the directory : ' . $packageVendorDir);
+                    }
                 }
             }
         } else {
@@ -276,6 +271,8 @@ class SharedPackageInstaller extends LibraryInstaller
 
     /**
      * @param PackageInterface $package
+     *
+     * @throws FilesystemException
      */
     protected function removeVendorSymlink(PackageInterface $package)
     {
@@ -285,7 +282,12 @@ class SharedPackageInstaller extends LibraryInstaller
             ''
         ));
 
-        @unlink($this->getPackageDistDir($package));
+        $packageVendorSymlink = $this->getPackageVendorSymlink($package);
+        if (is_link($packageVendorSymlink)) {
+            if (unlink($this->getPackageVendorSymlink($package))) {
+                throw new FilesystemException('Unable to remove the symlink : ' . $packageVendorSymlink);
+            }
+        }
     }
 
     /**
