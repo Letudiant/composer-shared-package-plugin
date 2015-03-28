@@ -57,8 +57,7 @@ class SharedPackageInstaller extends LibraryInstaller
         $baseDir = substr($this->composer->getConfig()->get('vendor-dir'), 0, -strlen($this->composer->getConfig()->get('vendor-dir', 1)));
         $extra = $this->composer->getPackage()->getExtra();
 
-        $this->distDir = $baseDir . 'dist';
-        $this->vendorDir = $baseDir . '../dependencies';
+        $this->distDir = $baseDir . 'vendor-shared';
 
         if (isset($extra[self::PACKAGE_TYPE]['dist-dir'])) {
             $this->distDir = $extra[self::PACKAGE_TYPE]['dist-dir'];
@@ -67,11 +66,16 @@ class SharedPackageInstaller extends LibraryInstaller
             }
         }
 
-        if (isset($extra[self::PACKAGE_TYPE]['vendor-dir'])) {
-            $this->vendorDir = $baseDir . $extra[self::PACKAGE_TYPE]['vendor-dir'];
-            if ('/' != $this->vendorDir[0]) {
-                $this->vendorDir = $baseDir . $this->vendorDir;
-            }
+        if (!isset($extra[self::PACKAGE_TYPE]['vendor-dir'])) {
+            throw new \InvalidArgumentException(
+                'The "vendor-dir" configuration for "' . self::PACKAGE_TYPE . '" should be provided in your '
+                . 'composer.json (extra part)'
+            );
+        }
+
+        $this->vendorDir = $baseDir . $extra[self::PACKAGE_TYPE]['vendor-dir'];
+        if ('/' != $this->vendorDir[0]) {
+            $this->vendorDir = $baseDir . $this->vendorDir;
         }
 
         $this->originalVendorDir = $this->composer->getConfig()->get('vendor-dir');
@@ -93,7 +97,11 @@ class SharedPackageInstaller extends LibraryInstaller
 
         $this->filesystem->ensureDirectoryExists($this->vendorDir);
 
-        return $this->vendorDir . DIRECTORY_SEPARATOR . $package->getPrettyName() . DIRECTORY_SEPARATOR . $package->getPrettyVersion();
+        return
+            $this->vendorDir . DIRECTORY_SEPARATOR
+            . $package->getPrettyName() . DIRECTORY_SEPARATOR
+            . $package->getPrettyVersion()
+        ;
     }
 
     /**
@@ -235,8 +243,9 @@ class SharedPackageInstaller extends LibraryInstaller
             }
 
             $this->removePackageUsage($package);
-            if ($this->io->isInteractive() && $this->isSourceDirUnuse($package) && $this->io->askConfirmation(
-                "The package <info>" . $package->getPrettyName() . "</info> (<fg=yellow>" . $package->getPrettyVersion() . "</fg=yellow>) seems to be unused."
+            if ($this->io->isInteractive() && $this->isSourceDirUnused($package) && $this->io->askConfirmation(
+                "The package <info>" . $package->getPrettyName() . "</info> "
+                . "(<fg=yellow>" . $package->getPrettyVersion() . "</fg=yellow>) seems to be unused."
                 . PHP_EOL
                 . 'Do you want to <fg=red>delete the source folder</fg=red> ? [y/n] (default: no) : ',
                 false
@@ -271,7 +280,8 @@ class SharedPackageInstaller extends LibraryInstaller
     protected function removeVendorSymlink(PackageInterface $package)
     {
         $this->io->write(array(
-            '  - Deleting symlink for <info>' . $package->getPrettyName() . '</info> (<fg=yellow>' . $package->getPrettyVersion() . '</fg=yellow>)',
+            '  - Deleting symlink for <info>' . $package->getPrettyName() . '</info> '
+            . '(<fg=yellow>' . $package->getPrettyVersion() . '</fg=yellow>)',
             ''
         ));
 
@@ -285,7 +295,7 @@ class SharedPackageInstaller extends LibraryInstaller
      *
      * @return bool
      */
-    protected function isSourceDirUnuse(PackageInterface $package)
+    protected function isSourceDirUnused(PackageInterface $package)
     {
         $usageData = $this->getPackageUsage($package);
 
