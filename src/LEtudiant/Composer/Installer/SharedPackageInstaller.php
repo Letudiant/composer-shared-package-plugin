@@ -18,6 +18,7 @@ use Composer\IO\IOInterface;
 use Composer\Package\PackageInterface;
 use Composer\Repository\InstalledRepositoryInterface;
 use Composer\Util\Filesystem;
+use LEtudiant\Composer\Usage\SharedPackageDataManager;
 
 /**
  * @author Sylvain Lorinet <sylvain.lorinet@gmail.com>
@@ -30,7 +31,7 @@ class SharedPackageInstaller extends LibraryInstaller
     /**
      * @var string
      */
-    protected $distDir;
+    protected $symlinkDir;
 
     /**
      * @var string
@@ -43,9 +44,9 @@ class SharedPackageInstaller extends LibraryInstaller
     protected $originalVendorDir;
 
     /**
-     * @var array
+     * @var SharedPackageDataManager
      */
-    protected $packagesData;
+    protected $packageDataManager;
 
 
     /**
@@ -55,15 +56,18 @@ class SharedPackageInstaller extends LibraryInstaller
     {
         parent::__construct($io, $composer, $type, $filesystem);
 
-        $baseDir = substr($this->composer->getConfig()->get('vendor-dir'), 0, -strlen($this->composer->getConfig()->get('vendor-dir', 1)));
         $extra = $this->composer->getPackage()->getExtra();
+        $baseDir = substr(
+            $this->composer->getConfig()->get('vendor-dir'),
+            0,
+            -strlen($this->composer->getConfig()->get('vendor-dir', 1))
+        );
+        $this->symlinkDir = $baseDir . 'vendor-shared';
 
-        $this->distDir = $baseDir . 'vendor-shared';
-
-        if (isset($extra[self::PACKAGE_TYPE]['dist-dir'])) {
-            $this->distDir = $extra[self::PACKAGE_TYPE]['dist-dir'];
-            if ('/' != $this->distDir[0]) {
-                $this->distDir = $baseDir . $this->distDir;
+        if (isset($extra[self::PACKAGE_TYPE]['symlink-dir'])) {
+            $this->symlinkDir = $extra[self::PACKAGE_TYPE]['symlink-dir'];
+            if ('/' != $this->symlinkDir[0]) {
+                $this->symlinkDir = $baseDir . $this->symlinkDir;
             }
         }
 
@@ -79,7 +83,8 @@ class SharedPackageInstaller extends LibraryInstaller
             $this->vendorDir = $baseDir . $this->vendorDir;
         }
 
-        $this->originalVendorDir = $this->composer->getConfig()->get('vendor-dir');
+        $this->originalVendorDir  = $this->composer->getConfig()->get('vendor-dir');
+        $this->packageDataManager = new SharedPackageDataManager($composer, $this->vendorDir);
     }
 
     /**
@@ -112,7 +117,7 @@ class SharedPackageInstaller extends LibraryInstaller
      */
     protected function getPackageVendorSymlink(PackageInterface $package)
     {
-        return $this->distDir . DIRECTORY_SEPARATOR . $package->getPrettyName();
+        return $this->symlinkDir . DIRECTORY_SEPARATOR . $package->getPrettyName();
     }
 
     /**
@@ -129,7 +134,7 @@ class SharedPackageInstaller extends LibraryInstaller
             $packageParams = explode('/', $prettyName);
             $packageNamespace = substr($prettyName, 0, -strlen($packageParams[sizeof($packageParams) - 1]));
 
-            $this->filesystem->ensureDirectoryExists($this->distDir . DIRECTORY_SEPARATOR . $packageNamespace);
+            $this->filesystem->ensureDirectoryExists($this->symlinkDir . DIRECTORY_SEPARATOR . $packageNamespace);
             $this->io->write(array(
                 '  - Creating symlink for <info>' . $package->getPrettyName()
                     . '</info> (<fg=yellow>' . $package->getPrettyVersion() . '</fg=yellow>)',
@@ -147,7 +152,9 @@ class SharedPackageInstaller extends LibraryInstaller
     public function install(InstalledRepositoryInterface $repo, PackageInterface $package)
     {
         if (!$package->isDev()) {
-            return parent::install($repo, $package);
+            parent::install($repo, $package);
+
+            return;
         }
 
         if (!is_readable($this->getInstallPath($package))) {
@@ -159,7 +166,7 @@ class SharedPackageInstaller extends LibraryInstaller
 
         $this->initializeVendorSymlink($package);
 
-        $this->addPackageUsage($package);
+        $this->packageDataManager->addPackageUsage($package);
     }
 
     /**
@@ -194,13 +201,8 @@ class SharedPackageInstaller extends LibraryInstaller
             throw new \InvalidArgumentException('Package is not installed: ' . $initial);
         }
 
-        if (null == $initial->getInstallationSource()) {
-            $initial->setInstallationSource($this->getPackageInstallationSource($initial));
-        }
-
-        if (null == $target->getInstallationSource()) {
-            $target->setInstallationSource($this->getPackageInstallationSource($target));
-        }
+        $this->packageDataManager->setPackageInstallationSource($initial);
+        $this->packageDataManager->setPackageInstallationSource($target);
 
         // The package need only a code update because the version is the same
         if ($this->getInstallPath($initial) === $this->getInstallPath($target)) {
@@ -235,7 +237,7 @@ class SharedPackageInstaller extends LibraryInstaller
                 throw new \InvalidArgumentException('Package is not installed: ' . $package);
             }
 
-            $this->removePackageUsage($package);
+            $this->packageDataManager->removePackageUsage($package);
             if ($this->io->isInteractive() && $this->isSourceDirUnused($package) && $this->io->askConfirmation(
                 "The package <info>" . $package->getPrettyName() . "</info> "
                 . "(<fg=yellow>" . $package->getPrettyVersion() . "</fg=yellow>) seems to be unused."
@@ -243,9 +245,7 @@ class SharedPackageInstaller extends LibraryInstaller
                 . 'Do you want to <fg=red>delete the source folder</fg=red> ? [y/n] (default: no) : ',
                 false
             )) {
-                if (null == $package->getInstallationSource()) {
-                    $package->setInstallationSource($this->getPackageInstallationSource($package));
-                }
+                $this->packageDataManager->setPackageInstallationSource($package);
 
                 parent::uninstall($repo, $package);
             } else {
@@ -299,118 +299,9 @@ class SharedPackageInstaller extends LibraryInstaller
      */
     protected function isSourceDirUnused(PackageInterface $package)
     {
-        $usageData = $this->getPackageUsage($package);
+        $usageData = $this->packageDataManager->getPackageUsage($package);
 
         return 0 == sizeof($usageData);
-    }
-
-    /**
-     * Add a row in the "packages.json" file, with the project name for the "package/version" key
-     *
-     * @param PackageInterface $package
-     */
-    protected function addPackageUsage(PackageInterface $package)
-    {
-        $usageData = $this->getPackageUsage($package);
-        $packageName = $this->composer->getPackage()->getName();
-
-        if (!in_array($packageName, $usageData)) {
-            $usageData[] = $packageName;
-        }
-
-        $this->updatePackageUsageFile($package, $usageData);
-    }
-
-    /**
-     * Remove the row in the "packages.json" file
-     *
-     * @param PackageInterface $package
-     */
-    protected function removePackageUsage(PackageInterface $package)
-    {
-        $usageData = $this->getPackageUsage($package);
-        $newUsageData = array();
-        $projectName = $this->composer->getPackage()->getName();
-
-        foreach ($usageData as $usage) {
-            if ($projectName !== $usage) {
-                $newUsageData[] = $usage;
-            }
-        }
-
-        $this->updatePackageUsageFile($package, $newUsageData);
-    }
-
-    /**
-     * Return usage of the current package
-     *
-     * @param PackageInterface $package
-     *
-     * @return array
-     */
-    protected function getPackageUsage(PackageInterface $package)
-    {
-        $packageKey = $package->getPrettyName() . '/' . $package->getPrettyVersion();
-        if (!isset($this->packagesData)) {
-            $filePath = $this->vendorDir . DIRECTORY_SEPARATOR . self::PACKAGE_USAGE_FILENAME;
-            if (!is_file($filePath)) {
-                $this->packagesData = array();
-            } else {
-                $this->packagesData = json_decode(file_get_contents($filePath), true);
-            }
-        }
-
-        if (!isset($this->packagesData[$packageKey])) {
-            return array();
-        }
-
-        return $this->packagesData[$packageKey]['project-usage'];
-    }
-
-    /**
-     * @param PackageInterface $package
-     *
-     * @return string|null
-     */
-    protected function getPackageInstallationSource(PackageInterface $package)
-    {
-        $packageKey = $package->getPrettyName() . '/' . $package->getPrettyVersion();
-        if (!isset($this->packagesData[$packageKey])) {
-            return null;
-        }
-
-        return $this->packagesData[$packageKey]['installation-source'];
-    }
-
-    /**
-     * @param PackageInterface $package
-     * @param array            $packageData
-     */
-    protected function updatePackageUsageFile(PackageInterface $package, array $packageData)
-    {
-        $packageKey = $package->getPrettyName() . '/' . $package->getPrettyVersion();
-        if (!isset($packageData[0]) && isset($this->packagesData[$packageKey])) {
-            unset($this->packagesData[$packageKey]);
-        } elseif (!isset($this->packagesData[$packageKey])) {
-            if (null == $package->getInstallationSource()) {
-                throw new \RuntimeException(
-                    'Unknown installation source for package "' . $package->getPrettyName()
-                    . '" ("' . $package->getPrettyVersion() . '")'
-                );
-            }
-
-            $this->packagesData[$packageKey] = array(
-                'installation-source' => $package->getInstallationSource(),
-                'project-usage'       => $packageData
-            );
-        } else {
-            $this->packagesData[$packageKey]['project-usage'] = $packageData;
-        }
-
-        file_put_contents(
-            $this->vendorDir . DIRECTORY_SEPARATOR . self::PACKAGE_USAGE_FILENAME,
-            json_encode($this->packagesData)
-        );
     }
 
     /**
