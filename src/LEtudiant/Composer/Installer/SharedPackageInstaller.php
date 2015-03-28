@@ -206,10 +206,7 @@ class SharedPackageInstaller extends LibraryInstaller
 
         // The package need only a code update because the version is the same
         if ($this->getInstallPath($initial) === $this->getInstallPath($target)) {
-            if (!$this->isInstalled($repo, $initial)) {
-                $this->initializeVendorSymlink($initial);
-            }
-
+            $this->initializeVendorSymlink($initial);
             parent::update($repo, $initial, $target);
 
             return;
@@ -273,10 +270,11 @@ class SharedPackageInstaller extends LibraryInstaller
         ));
 
         $packageVendorSymlink = $this->getPackageVendorSymlink($package);
-        if (is_link($packageVendorSymlink)) {
-            if (unlink($this->getPackageVendorSymlink($package))) {
-                throw new FilesystemException('Unable to remove the symlink : ' . $packageVendorSymlink);
-            }
+        if (
+            is_link($packageVendorSymlink)
+            && !unlink($this->getPackageVendorSymlink($package))
+        ) {
+            throw new FilesystemException('Unable to remove the symlink : ' . $packageVendorSymlink);
         }
 
         // Delete symlink vendor prefix folder if empty
