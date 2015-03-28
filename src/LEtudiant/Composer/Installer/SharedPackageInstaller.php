@@ -232,40 +232,39 @@ class SharedPackageInstaller extends LibraryInstaller
      */
     public function uninstall(InstalledRepositoryInterface $repo, PackageInterface $package)
     {
-        if ($package->isDev()) {
-            if (!$repo->hasPackage($package)) {
-                throw new \InvalidArgumentException('Package is not installed: ' . $package);
-            }
-
-            $this->packageDataManager->removePackageUsage($package);
-            if ($this->io->isInteractive() && $this->isSourceDirUnused($package) && $this->io->askConfirmation(
-                "The package <info>" . $package->getPrettyName() . "</info> "
-                . "(<fg=yellow>" . $package->getPrettyVersion() . "</fg=yellow>) seems to be unused."
-                . PHP_EOL
-                . 'Do you want to <fg=red>delete the source folder</fg=red> ? [y/n] (default: no) : ',
-                false
-            )) {
-                $this->packageDataManager->setPackageInstallationSource($package);
-
-                parent::uninstall($repo, $package);
-            } else {
-                $this->removeBinaries($package);
-                $repo->removePackage($package);
-            }
-
-            $this->removeVendorSymlink($package);
-
-            // Delete vendor prefix folder in empty
-            if (strpos($package->getName(), '/')) {
-                $packageVendorDir = dirname($this->getPackageVendorSymlink($package));
-                if (is_dir($packageVendorDir) && $this->filesystem->isDirEmpty($packageVendorDir)) {
-                    if (!rmdir($packageVendorDir)) {
-                        throw new FilesystemException('Unable to remove the directory : ' . $packageVendorDir);
-                    }
-                }
-            }
-        } else {
+        if (!$package->isDev()) {
             parent::uninstall($repo, $package);
+        }
+
+        if (!$repo->hasPackage($package)) {
+            throw new \InvalidArgumentException('Package is not installed: ' . $package);
+        }
+
+        $this->packageDataManager->removePackageUsage($package);
+        if ($this->io->isInteractive() && $this->isSourceDirUnused($package) && $this->io->askConfirmation(
+            "The package <info>" . $package->getPrettyName() . "</info> "
+            . "(<fg=yellow>" . $package->getPrettyVersion() . "</fg=yellow>) seems to be unused."
+            . PHP_EOL
+            . 'Do you want to <fg=red>delete the source folder</fg=red> ? [y/n] (default: no) : ',
+            false
+        )) {
+            $this->packageDataManager->setPackageInstallationSource($package);
+
+            parent::uninstall($repo, $package);
+        } else {
+            $this->removeBinaries($package);
+            $repo->removePackage($package);
+        }
+
+        $this->removeVendorSymlink($package);
+
+        // Delete vendor prefix folder in empty
+        $packageVendorDir = dirname($this->getPackageVendorSymlink($package));
+        if (
+            is_dir($packageVendorDir) && $this->filesystem->isDirEmpty($packageVendorDir)
+            && !rmdir($packageVendorDir)
+        ) {
+            throw new FilesystemException('Unable to remove the directory : ' . $packageVendorDir);
         }
     }
 
