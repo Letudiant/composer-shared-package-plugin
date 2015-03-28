@@ -257,15 +257,6 @@ class SharedPackageInstaller extends LibraryInstaller
         }
 
         $this->removeVendorSymlink($package);
-
-        // Delete vendor prefix folder in empty
-        $packageVendorDir = dirname($this->getPackageVendorSymlink($package));
-        if (
-            is_dir($packageVendorDir) && $this->filesystem->isDirEmpty($packageVendorDir)
-            && !rmdir($packageVendorDir)
-        ) {
-            throw new FilesystemException('Unable to remove the directory : ' . $packageVendorDir);
-        }
     }
 
     /**
@@ -286,6 +277,15 @@ class SharedPackageInstaller extends LibraryInstaller
             if (unlink($this->getPackageVendorSymlink($package))) {
                 throw new FilesystemException('Unable to remove the symlink : ' . $packageVendorSymlink);
             }
+        }
+
+        // Delete symlink vendor prefix folder if empty
+        $packageVendorDir = dirname($this->getPackageVendorSymlink($package));
+        if (
+            is_dir($packageVendorDir) && $this->filesystem->isDirEmpty($packageVendorDir)
+            && !rmdir($packageVendorDir)
+        ) {
+            throw new FilesystemException('Unable to remove the directory : ' . $packageVendorDir);
         }
     }
 
