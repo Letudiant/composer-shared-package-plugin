@@ -107,7 +107,7 @@ class SharedPackageInstaller extends LibraryInstaller
             $this->vendorDir . DIRECTORY_SEPARATOR
             . $package->getPrettyName() . DIRECTORY_SEPARATOR
             . $package->getPrettyVersion()
-            ;
+        ;
     }
 
     /**
@@ -179,7 +179,11 @@ class SharedPackageInstaller extends LibraryInstaller
     {
         // In the case of symlink, just check if the sources folder and the link exist
         if ($package->isDev()) {
-            return is_readable($this->getInstallPath($package)) && is_link($this->getPackageVendorSymlink($package));
+            return
+                $repo->hasPackage($package)
+                && is_readable($this->getInstallPath($package))
+                && is_link($this->getPackageVendorSymlink($package))
+            ;
         }
 
         return parent::isInstalled($repo, $package);
@@ -198,7 +202,7 @@ class SharedPackageInstaller extends LibraryInstaller
         }
 
         if (!$repo->hasPackage($initial)) {
-            throw new \InvalidArgumentException('Package is not installed : ' . $initial);
+            throw new \InvalidArgumentException('Package is not installed : ' . $initial->getPrettyName());
         }
 
         $this->packageDataManager->setPackageInstallationSource($initial);
@@ -234,7 +238,7 @@ class SharedPackageInstaller extends LibraryInstaller
         }
 
         if (!$repo->hasPackage($package)) {
-            throw new \InvalidArgumentException('Package is not installed : ' . $package);
+            throw new \InvalidArgumentException('Package is not installed : ' . $package->getPrettyName());
         }
 
         $this->packageDataManager->removePackageUsage($package);
@@ -274,7 +278,9 @@ class SharedPackageInstaller extends LibraryInstaller
             is_link($packageVendorSymlink)
             && !unlink($this->getPackageVendorSymlink($package))
         ) {
+            // @codeCoverageIgnoreStart
             throw new FilesystemException('Unable to remove the symlink : ' . $packageVendorSymlink);
+            // @codeCoverageIgnoreEnd
         }
 
         // Delete symlink vendor prefix folder if empty
@@ -283,7 +289,9 @@ class SharedPackageInstaller extends LibraryInstaller
             is_dir($packageVendorDir) && $this->filesystem->isDirEmpty($packageVendorDir)
             && !rmdir($packageVendorDir)
         ) {
+            // @codeCoverageIgnoreStart
             throw new FilesystemException('Unable to remove the directory : ' . $packageVendorDir);
+            // @codeCoverageIgnoreEnd
         }
     }
 
