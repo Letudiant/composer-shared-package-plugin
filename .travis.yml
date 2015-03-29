@@ -1,24 +1,23 @@
 language: php
 
 php:
-  - 5.3.3
-  - 5.3
-  - 5.4
-  - 5.5
-  - 5.6
-  - 7.0
-  - hhvm
+    - 5.3
+    - 5.4
+    - 5.5
+    - 5.6
+    - 7.0
+    - hhvm
 
 before_script:
-  - curl -s http://getcomposer.org/installer | php
-  - php composer.phar install  --dev --no-interaction --prefer-source
+    - curl -s http://getcomposer.org/installer | php
+    - php composer.phar install  --dev --no-interaction --prefer-source
 
 script:
-  - ./vendor/bin/phpunit
+    - ./vendor/bin/phpunit
 
 after_script:
-  - ./vendor/bin/test-reporter --coverage-report=tests/build/logs/clover.xml --stdout > codeclimate.json
-  - "curl -X POST -d @codeclimate.json -H 'Content-Type: application/json' -H 'User-Agent: Code Climate (PHP Test Reporter v0.1.1)' https://codeclimate.com/test_reports"
+    - ./vendor/bin/test-reporter --coverage-report=tests/build/logs/clover.xml --stdout > codeclimate.json
+    - "curl -X POST -d @codeclimate.json -H 'Content-Type: application/json' -H 'User-Agent: Code Climate (PHP Test Reporter v0.1.1)' https://codeclimate.com/test_reports"
 
 addons:
     code_climate:
