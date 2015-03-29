@@ -213,9 +213,7 @@ class SharedPackageInstaller extends LibraryInstaller
         }
 
         // If the initial package sources folder exists, uninstall it
-        if (is_readable($this->getInstallPath($initial))) {
-            $this->uninstall($repo, $initial);
-        }
+        $this->uninstall($repo, $initial);
 
         // Install the target package
         $this->install($repo, $target);
