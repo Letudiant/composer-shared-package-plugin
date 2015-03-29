@@ -9,7 +9,7 @@
  * file that was distributed with this source code.
  */
 
-namespace LEtudiant\Composer\Usage;
+namespace LEtudiant\Composer\Data\Package;
 
 use Composer\Composer;
 use Composer\Package\PackageInterface;

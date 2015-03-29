@@ -18,7 +18,7 @@ use Composer\IO\IOInterface;
 use Composer\Package\PackageInterface;
 use Composer\Repository\InstalledRepositoryInterface;
 use Composer\Util\Filesystem;
-use LEtudiant\Composer\Usage\SharedPackageDataManager;
+use LEtudiant\Composer\Data\Package\SharedPackageDataManager;
 
 /**
  * @author Sylvain Lorinet <sylvain.lorinet@gmail.com>
@@ -73,7 +73,7 @@ class SharedPackageInstaller extends LibraryInstaller
 
         if (!isset($extra[self::PACKAGE_TYPE]['vendor-dir'])) {
             throw new \InvalidArgumentException(
-                'The "vendor-dir" configuration for "' . self::PACKAGE_TYPE . '" should be provided in your '
+                'The "vendor-dir" parameter for "' . self::PACKAGE_TYPE . '" configuration should be provided in your '
                 . 'composer.json (extra part)'
             );
         }
@@ -107,7 +107,7 @@ class SharedPackageInstaller extends LibraryInstaller
             $this->vendorDir . DIRECTORY_SEPARATOR
             . $package->getPrettyName() . DIRECTORY_SEPARATOR
             . $package->getPrettyVersion()
-        ;
+            ;
     }
 
     /**
@@ -137,7 +137,7 @@ class SharedPackageInstaller extends LibraryInstaller
             $this->filesystem->ensureDirectoryExists($this->symlinkDir . DIRECTORY_SEPARATOR . $packageNamespace);
             $this->io->write(array(
                 '  - Creating symlink for <info>' . $package->getPrettyName()
-                    . '</info> (<fg=yellow>' . $package->getPrettyVersion() . '</fg=yellow>)',
+                . '</info> (<fg=yellow>' . $package->getPrettyVersion() . '</fg=yellow>)',
                 ''
             ));
 
@@ -198,7 +198,7 @@ class SharedPackageInstaller extends LibraryInstaller
         }
 
         if (!$repo->hasPackage($initial)) {
-            throw new \InvalidArgumentException('Package is not installed: ' . $initial);
+            throw new \InvalidArgumentException('Package is not installed : ' . $initial);
         }
 
         $this->packageDataManager->setPackageInstallationSource($initial);
@@ -231,20 +231,22 @@ class SharedPackageInstaller extends LibraryInstaller
     {
         if (!$package->isDev()) {
             parent::uninstall($repo, $package);
+
+            return;
         }
 
         if (!$repo->hasPackage($package)) {
-            throw new \InvalidArgumentException('Package is not installed: ' . $package);
+            throw new \InvalidArgumentException('Package is not installed : ' . $package);
         }
 
         $this->packageDataManager->removePackageUsage($package);
         if ($this->io->isInteractive() && $this->isSourceDirUnused($package) && $this->io->askConfirmation(
-            "The package <info>" . $package->getPrettyName() . "</info> "
-            . "(<fg=yellow>" . $package->getPrettyVersion() . "</fg=yellow>) seems to be unused."
-            . PHP_EOL
-            . 'Do you want to <fg=red>delete the source folder</fg=red> ? [y/n] (default: no) : ',
-            false
-        )) {
+                "The package version <info>" . $package->getPrettyName() . "</info> "
+                . "(<fg=yellow>" . $package->getPrettyVersion() . "</fg=yellow>) seems to be unused."
+                . PHP_EOL
+                . 'Do you want to <fg=red>delete the source folder</fg=red> ? [y/n] (default: no) : ',
+                false
+            )) {
             $this->packageDataManager->setPackageInstallationSource($package);
 
             parent::uninstall($repo, $package);
