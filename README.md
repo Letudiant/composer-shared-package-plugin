@@ -2,7 +2,8 @@
 
 [![Code Climate](https://codeclimate.com/github/Letudiant/composer-shared-package-plugin/badges/gpa.svg)](https://codeclimate.com/github/Letudiant/composer-shared-package-plugin)
 [![Scrutinizer Code Quality](https://scrutinizer-ci.com/g/Letudiant/composer-shared-package-plugin/badges/quality-score.png?b=master)](https://scrutinizer-ci.com/g/Letudiant/composer-shared-package-plugin/?branch=master)
-[![Code Climate](https://codeclimate.com/github/Letudiant/composer-shared-package-plugin/badges/gpa.svg)](https://codeclimate.com/github/Letudiant/composer-shared-package-plugin)
+[![Build Status](https://travis-ci.org/Letudiant/composer-shared-package-plugin.svg?branch=master)](https://travis-ci.org/Letudiant/composer-shared-package-plugin)
+[![Test Coverage](https://codeclimate.com/github/Letudiant/composer-shared-package-plugin/badges/coverage.svg)](https://codeclimate.com/github/Letudiant/composer-shared-package-plugin)
 
 ## License
 
