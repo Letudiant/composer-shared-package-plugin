@@ -7,7 +7,6 @@ use Composer\Config;
 use Composer\Downloader\DownloadManager;
 use Composer\IO\IOInterface;
 use Composer\Package\Package;
-use Composer\Package\PackageInterface;
 use Composer\Package\RootPackage;
 use Composer\Repository\InstalledRepositoryInterface;
 use Composer\TestCase;
