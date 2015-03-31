@@ -241,7 +241,6 @@ class SharedPackageInstaller extends LibraryInstaller
             throw new \InvalidArgumentException('Package is not installed : ' . $package->getPrettyName());
         }
 
-        $this->packageDataManager->removePackageUsage($package);
         if ($this->io->isInteractive() && $this->isSourceDirUnused($package) && $this->io->askConfirmation(
                 "The package version <info>" . $package->getPrettyName() . "</info> "
                 . "(<fg=yellow>" . $package->getPrettyVersion() . "</fg=yellow>) seems to be unused."
@@ -256,6 +255,8 @@ class SharedPackageInstaller extends LibraryInstaller
             $this->removeBinaries($package);
             $repo->removePackage($package);
         }
+
+        $this->packageDataManager->removePackageUsage($package);
 
         $this->removeVendorSymlink($package);
     }
