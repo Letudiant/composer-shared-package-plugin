@@ -611,11 +611,6 @@ class SharedPackageInstallerTest extends TestCase
     {
         $this->io
             ->expects($this->once())
-            ->method('isInteractive')
-            ->willReturn(true);
-
-        $this->io
-            ->expects($this->once())
             ->method('askConfirmation')
             ->willReturn(true);
 
