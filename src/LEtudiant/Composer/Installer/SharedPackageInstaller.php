@@ -25,8 +25,7 @@ use LEtudiant\Composer\Data\Package\SharedPackageDataManager;
  */
 class SharedPackageInstaller extends LibraryInstaller
 {
-    const PACKAGE_TYPE           = 'shared-package';
-    const PACKAGE_USAGE_FILENAME = 'packages.json';
+    const PACKAGE_TYPE = 'shared-package';
 
     /**
      * @var string

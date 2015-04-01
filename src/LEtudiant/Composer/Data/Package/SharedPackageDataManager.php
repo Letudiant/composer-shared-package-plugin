@@ -20,6 +20,8 @@ use LEtudiant\Composer\Installer\SharedPackageInstaller;
  */
 class SharedPackageDataManager
 {
+    const PACKAGE_DATA_FILENAME = 'packages.json';
+
     /**
      * @var Composer
      */
@@ -52,8 +54,12 @@ class SharedPackageDataManager
     protected function updatePackageUsageFile(PackageInterface $package, array $packageData)
     {
         $packageKey = $package->getPrettyName() . '/' . $package->getPrettyVersion();
-        if (!isset($packageData[0]) && isset($this->packagesData[$packageKey])) {
-            unset($this->packagesData[$packageKey]);
+
+        // Remove the line if there is no data anymore
+        if (!isset($packageData[0])) {
+            if (isset($this->packagesData[$packageKey])) {
+                unset($this->packagesData[$packageKey]);
+            }
         } elseif (!isset($this->packagesData[$packageKey])) {
             if (null == $package->getInstallationSource()) {
                 throw new \RuntimeException(
@@ -71,7 +77,7 @@ class SharedPackageDataManager
         }
 
         file_put_contents(
-            $this->vendorDir . DIRECTORY_SEPARATOR . SharedPackageInstaller::PACKAGE_USAGE_FILENAME,
+            $this->vendorDir . DIRECTORY_SEPARATOR . self::PACKAGE_DATA_FILENAME,
             json_encode($this->packagesData)
         );
     }
@@ -124,12 +130,7 @@ class SharedPackageDataManager
     {
         $packageKey = $package->getPrettyName() . '/' . $package->getPrettyVersion();
         if (!isset($this->packagesData)) {
-            $filePath = $this->vendorDir . DIRECTORY_SEPARATOR . SharedPackageInstaller::PACKAGE_USAGE_FILENAME;
-            if (!is_file($filePath)) {
-                $this->packagesData = array();
-            } else {
-                $this->packagesData = json_decode(file_get_contents($filePath), true);
-            }
+            $this->initializePackageData();
         }
 
         if (!isset($this->packagesData[$packageKey])) {
@@ -140,12 +141,29 @@ class SharedPackageDataManager
     }
 
     /**
+     * Initialize the package data array if not set
+     */
+    protected function initializePackageData()
+    {
+        $filePath = $this->vendorDir . DIRECTORY_SEPARATOR . self::PACKAGE_DATA_FILENAME;
+        if (!is_file($filePath)) {
+            $this->packagesData = array();
+        } else {
+            $this->packagesData = json_decode(file_get_contents($filePath), true);
+        }
+    }
+
+    /**
      * @param PackageInterface $package
      *
      * @return string|null
      */
     protected function getPackageInstallationSource(PackageInterface $package)
     {
+        if (!isset($this->packagesData)) {
+            $this->initializePackageData();
+        }
+
         $packageKey = $package->getPrettyName() . '/' . $package->getPrettyVersion();
         if (!isset($this->packagesData[$packageKey])) {
             return null;
