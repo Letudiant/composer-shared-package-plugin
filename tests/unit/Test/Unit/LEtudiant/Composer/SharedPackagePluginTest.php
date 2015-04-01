@@ -1,5 +1,14 @@
 <?php
 
+/*
+ * This file is part of the "Composer Shared Package Plugin" package.
+ *
+ * https://github.com/Letudiant/composer-shared-package-plugin
+ *
+ * For the full license information, please view the LICENSE
+ * file that was distributed with this source code.
+ */
+
 namespace Test\Unit\LEtudiant\Composer;
 
 use Composer\Composer;
