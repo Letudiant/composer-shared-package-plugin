@@ -56,32 +56,15 @@ class SharedPackageInstaller extends LibraryInstaller
     {
         parent::__construct($io, $composer, $type, $filesystem);
 
-        $extra = $this->composer->getPackage()->getExtra();
         $baseDir = substr(
             $this->composer->getConfig()->get('vendor-dir'),
             0,
             -strlen($this->composer->getConfig()->get('vendor-dir', 1))
         );
-        $this->symlinkDir = $baseDir . 'vendor-shared';
 
-        if (isset($extra[self::PACKAGE_TYPE]['symlink-dir'])) {
-            $this->symlinkDir = $extra[self::PACKAGE_TYPE]['symlink-dir'];
-            if ('/' != $this->symlinkDir[0]) {
-                $this->symlinkDir = $baseDir . $this->symlinkDir;
-            }
-        }
-
-        if (!isset($extra[self::PACKAGE_TYPE]['vendor-dir'])) {
-            throw new \InvalidArgumentException(
-                'The "vendor-dir" parameter for "' . self::PACKAGE_TYPE . '" configuration should be provided in your '
-                . 'composer.json (extra part)'
-            );
-        }
-
-        $this->vendorDir = $baseDir . $extra[self::PACKAGE_TYPE]['vendor-dir'];
-        if ('/' != $this->vendorDir[0]) {
-            $this->vendorDir = $baseDir . $this->vendorDir;
-        }
+        $extra = $this->composer->getPackage()->getExtra();
+        $this->setSymlinkDirectory($baseDir, $extra);
+        $this->setVendorDir($baseDir, $extra);
 
         $this->originalVendorDir  = $this->composer->getConfig()->get('vendor-dir');
         $this->packageDataManager = new SharedPackageDataManager($composer, $this->vendorDir);
@@ -212,15 +195,13 @@ class SharedPackageInstaller extends LibraryInstaller
         if ($this->getInstallPath($initial) === $this->getInstallPath($target)) {
             $this->initializeVendorSymlink($initial);
             parent::update($repo, $initial, $target);
+        } else {
+            // If the initial package sources folder exists, uninstall it
+            $this->uninstall($repo, $initial);
 
-            return;
+            // Install the target package
+            $this->install($repo, $target);
         }
-
-        // If the initial package sources folder exists, uninstall it
-        $this->uninstall($repo, $initial);
-
-        // Install the target package
-        $this->install($repo, $target);
     }
 
     /**
@@ -241,7 +222,7 @@ class SharedPackageInstaller extends LibraryInstaller
             throw new \InvalidArgumentException('Package is not installed : ' . $package->getPrettyName());
         }
 
-        if ($this->io->isInteractive() && $this->isSourceDirUnused($package) && $this->io->askConfirmation(
+        if ($this->isSourceDirUnused($package) && $this->io->askConfirmation(
                 "The package version <info>" . $package->getPrettyName() . "</info> "
                 . "(<fg=yellow>" . $package->getPrettyVersion() . "</fg=yellow>) seems to be unused."
                 . PHP_EOL
@@ -308,6 +289,43 @@ class SharedPackageInstaller extends LibraryInstaller
         $usageData = $this->packageDataManager->getPackageUsage($package);
 
         return 0 == sizeof($usageData);
+    }
+
+    /**
+     * @param string $baseDir
+     * @param array  $extra
+     */
+    protected function setSymlinkDirectory($baseDir, $extra)
+    {
+        $this->symlinkDir = $baseDir . 'vendor-shared';
+
+        if (isset($extra[self::PACKAGE_TYPE]['symlink-dir'])) {
+            $this->symlinkDir = $extra[self::PACKAGE_TYPE]['symlink-dir'];
+            if ('/' != $this->symlinkDir[0]) {
+                $this->symlinkDir = $baseDir . $this->symlinkDir;
+            }
+        }
+    }
+
+    /**
+     * @param string $baseDir
+     * @param array  $extra
+     *
+     * @throws \InvalidArgumentException
+     */
+    protected function setVendorDir($baseDir, $extra)
+    {
+        if (!isset($extra[self::PACKAGE_TYPE]['vendor-dir'])) {
+            throw new \InvalidArgumentException(
+                'The "vendor-dir" parameter for "' . self::PACKAGE_TYPE . '" configuration should be provided in your '
+                . 'composer.json (extra part)'
+            );
+        }
+
+        $this->vendorDir = $baseDir . $extra[self::PACKAGE_TYPE]['vendor-dir'];
+        if ('/' != $this->vendorDir[0]) {
+            $this->vendorDir = $baseDir . $this->vendorDir;
+        }
     }
 
     /**
