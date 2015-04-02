@@ -13,7 +13,6 @@ namespace LEtudiant\Composer\Data\Package;
 
 use Composer\Composer;
 use Composer\Package\PackageInterface;
-use LEtudiant\Composer\Installer\SharedPackageInstaller;
 
 /**
  * @author Sylvain Lorinet <sylvain.lorinet@gmail.com>
@@ -128,16 +127,7 @@ class SharedPackageDataManager
      */
     public function getPackageUsage(PackageInterface $package)
     {
-        $packageKey = $package->getPrettyName() . '/' . $package->getPrettyVersion();
-        if (!isset($this->packagesData)) {
-            $this->initializePackageData();
-        }
-
-        if (!isset($this->packagesData[$packageKey])) {
-            return array();
-        }
-
-        return $this->packagesData[$packageKey]['project-usage'];
+        return $this->getPackageDataKey($package, 'project-usage', array());
     }
 
     /**
@@ -160,16 +150,28 @@ class SharedPackageDataManager
      */
     protected function getPackageInstallationSource(PackageInterface $package)
     {
+        return $this->getPackageDataKey($package, 'installation-source');
+    }
+
+    /**
+     * @param PackageInterface $package
+     * @param string           $key
+     * @param mixed            $defaultValue
+     *
+     * @return mixed
+     */
+    protected function getPackageDataKey(PackageInterface $package, $key, $defaultValue = null)
+    {
         if (!isset($this->packagesData)) {
             $this->initializePackageData();
         }
 
         $packageKey = $package->getPrettyName() . '/' . $package->getPrettyVersion();
         if (!isset($this->packagesData[$packageKey])) {
-            return null;
+            return $defaultValue;
         }
 
-        return $this->packagesData[$packageKey]['installation-source'];
+        return $this->packagesData[$packageKey][$key];
     }
 
     /**
