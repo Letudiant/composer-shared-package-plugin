@@ -17,7 +17,7 @@ use Composer\Package\PackageInterface;
 /**
  * @author Sylvain Lorinet <sylvain.lorinet@gmail.com>
  */
-class SharedPackageDataManager
+class SharedPackageDataManager implements PackageDataManagerInterface
 {
     const PACKAGE_DATA_FILENAME = 'packages.json';
 
