@@ -11,6 +11,8 @@
 
 namespace LEtudiant\Composer\Installer\Config;
 
+use LEtudiant\Composer\Installer\SharedPackageInstaller;
+
 /**
  * @author Sylvain Lorinet <sylvain.lorinet@gmail.com>
  */
@@ -41,7 +43,7 @@ class SharedPackageInstallerConfig
     {
         $this->originalVendorDir = $originalRelativeVendorDir;
 
-        $baseDir = substr($this->originalVendorDir, 0, -strlen($originalAbsoluteVendorDir));
+        $baseDir = substr($originalAbsoluteVendorDir, 0, -strlen($this->originalVendorDir));
 
         $this->setSymlinkDirectory($baseDir, $extraConfigs);
         $this->setVendorDir($baseDir, $extraConfigs);
@@ -58,6 +60,7 @@ class SharedPackageInstallerConfig
 
         if (isset($extra[SharedPackageInstaller::PACKAGE_TYPE]['symlink-dir'])) {
             $this->symlinkDir = $extra[SharedPackageInstaller::PACKAGE_TYPE]['symlink-dir'];
+
             if ('/' != $this->symlinkDir[0]) {
                 $this->symlinkDir = $baseDir . $this->symlinkDir;
             }
@@ -79,7 +82,7 @@ class SharedPackageInstallerConfig
             );
         }
 
-        $this->vendorDir = $baseDir . $extra[SharedPackageInstaller::PACKAGE_TYPE]['vendor-dir'];
+        $this->vendorDir = $extra[SharedPackageInstaller::PACKAGE_TYPE]['vendor-dir'];
         if ('/' != $this->vendorDir[0]) {
             $this->vendorDir = $baseDir . $this->vendorDir;
         }
