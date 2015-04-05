@@ -17,8 +17,9 @@ use Composer\Installer\LibraryInstaller;
 use Composer\IO\IOInterface;
 use Composer\Package\PackageInterface;
 use Composer\Repository\InstalledRepositoryInterface;
-use Composer\Util\Filesystem;
+use LEtudiant\Composer\Data\Package\PackageDataManagerInterface;
 use LEtudiant\Composer\Data\Package\SharedPackageDataManager;
+use LEtudiant\Composer\Util\SymlinkFilesystem;
 
 /**
  * @author Sylvain Lorinet <sylvain.lorinet@gmail.com>
@@ -43,30 +44,39 @@ class SharedPackageInstaller extends LibraryInstaller
     protected $originalVendorDir;
 
     /**
-     * @var SharedPackageDataManager
+     * @var PackageDataManagerInterface
      */
     protected $packageDataManager;
+
+    /**
+     * @var SymlinkFilesystem
+     */
+    protected $filesystem;
 
 
     /**
      * @inheritdoc
      */
-    public function __construct(IOInterface $io, Composer $composer, $type = 'library', Filesystem $filesystem = null)
+    public function __construct(
+        IOInterface $io,
+        Composer $composer,
+        SymlinkFilesystem $filesystem = null,
+        PackageDataManagerInterface $dataManager = null,
+        $type = 'library'
+    )
     {
+        $this->setFilesystem($filesystem);
+
         parent::__construct($io, $composer, $type, $filesystem);
 
-        $baseDir = substr(
-            $this->composer->getConfig()->get('vendor-dir'),
-            0,
-            -strlen($this->composer->getConfig()->get('vendor-dir', 1))
-        );
+        $this->setDataManager($dataManager);
+        $config = $this->composer->getConfig();
+        $this->originalVendorDir = $config->get('vendor-dir');
+        $baseDir = substr($this->originalVendorDir, 0, -strlen($config->get('vendor-dir', 1)));
 
         $extra = $this->composer->getPackage()->getExtra();
         $this->setSymlinkDirectory($baseDir, $extra);
         $this->setVendorDir($baseDir, $extra);
-
-        $this->originalVendorDir  = $this->composer->getConfig()->get('vendor-dir');
-        $this->packageDataManager = new SharedPackageDataManager($composer, $this->vendorDir);
     }
 
     /**
@@ -103,31 +113,6 @@ class SharedPackageInstaller extends LibraryInstaller
     }
 
     /**
-     * Create the symlink
-     *
-     * @param PackageInterface $package
-     */
-    protected function initializeVendorSymlink(PackageInterface $package)
-    {
-        $symlink = $this->getPackageVendorSymlink($package);
-
-        if (!is_link($symlink)) {
-            $prettyName = $package->getPrettyName();
-            $packageParams = explode('/', $prettyName);
-            $packageNamespace = substr($prettyName, 0, -strlen($packageParams[sizeof($packageParams) - 1]));
-
-            $this->filesystem->ensureDirectoryExists($this->symlinkDir . DIRECTORY_SEPARATOR . $packageNamespace);
-            $this->io->write(array(
-                '  - Creating symlink for <info>' . $package->getPrettyName()
-                . '</info> (<fg=yellow>' . $package->getPrettyVersion() . '</fg=yellow>)',
-                ''
-            ));
-
-            symlink($this->getPackageBasePath($package), $symlink);
-        }
-    }
-
-    /**
      * @param InstalledRepositoryInterface $repo
      * @param PackageInterface             $package
      */
@@ -146,8 +131,7 @@ class SharedPackageInstaller extends LibraryInstaller
             $repo->addPackage(clone $package);
         }
 
-        $this->initializeVendorSymlink($package);
-
+        $this->createPackageVendorSymlink($package);
         $this->packageDataManager->addPackageUsage($package);
     }
 
@@ -192,7 +176,8 @@ class SharedPackageInstaller extends LibraryInstaller
 
         // The package need only a code update because the version is the same
         if ($this->getInstallPath($initial) === $this->getInstallPath($target)) {
-            $this->initializeVendorSymlink($initial);
+            $this->createPackageVendorSymlink($target);
+
             parent::update($repo, $initial, $target);
         } else {
             // If the initial package sources folder exists, uninstall it
@@ -237,43 +222,7 @@ class SharedPackageInstaller extends LibraryInstaller
         }
 
         $this->packageDataManager->removePackageUsage($package);
-
-        $this->removeVendorSymlink($package);
-    }
-
-    /**
-     * @param PackageInterface $package
-     *
-     * @throws FilesystemException
-     */
-    protected function removeVendorSymlink(PackageInterface $package)
-    {
-        $this->io->write(array(
-            '  - Deleting symlink for <info>' . $package->getPrettyName() . '</info> '
-            . '(<fg=yellow>' . $package->getPrettyVersion() . '</fg=yellow>)',
-            ''
-        ));
-
-        $packageVendorSymlink = $this->getPackageVendorSymlink($package);
-        if (
-            is_link($packageVendorSymlink)
-            && !unlink($this->getPackageVendorSymlink($package))
-        ) {
-            // @codeCoverageIgnoreStart
-            throw new FilesystemException('Unable to remove the symlink : ' . $packageVendorSymlink);
-            // @codeCoverageIgnoreEnd
-        }
-
-        // Delete symlink vendor prefix folder if empty
-        $packageVendorDir = dirname($this->getPackageVendorSymlink($package));
-        if (
-            is_dir($packageVendorDir) && $this->filesystem->isDirEmpty($packageVendorDir)
-            && !rmdir($packageVendorDir)
-        ) {
-            // @codeCoverageIgnoreStart
-            throw new FilesystemException('Unable to remove the directory : ' . $packageVendorDir);
-            // @codeCoverageIgnoreEnd
-        }
+        $this->removePackageVendorSymlink($package);
     }
 
     /**
@@ -324,6 +273,61 @@ class SharedPackageInstaller extends LibraryInstaller
         $this->vendorDir = $baseDir . $extra[self::PACKAGE_TYPE]['vendor-dir'];
         if ('/' != $this->vendorDir[0]) {
             $this->vendorDir = $baseDir . $this->vendorDir;
+        }
+    }
+
+    /**
+     * @param PackageInterface $package
+     */
+    protected function createPackageVendorSymlink(PackageInterface $package)
+    {
+        if ($this->filesystem->ensureSymlinkExists(
+            $this->getInstallPath($package),
+            $this->getPackageVendorSymlink($package)
+        )) {
+            $this->io->write(array(
+                '  - Creating symlink for <info>' . $package->getPrettyName()
+                . '</info> (<fg=yellow>' . $package->getPrettyVersion() . '</fg=yellow>)',
+                ''
+            ));
+        }
+    }
+
+    /**
+     * @param PackageInterface $package
+     *
+     * @throws FilesystemException
+     */
+    protected function removePackageVendorSymlink(PackageInterface $package)
+    {
+        if ($this->filesystem->removeSymlink($this->getPackageVendorSymlink($package))) {
+            $this->io->write(array(
+                '  - Deleting symlink for <info>' . $package->getPrettyName() . '</info> '
+                . '(<fg=yellow>' . $package->getPrettyVersion() . '</fg=yellow>)',
+                ''
+            ));
+
+            $this->filesystem->removeEmptyDirectory(dirname($this->getPackageVendorSymlink($package)));
+        }
+    }
+
+    /**
+     * @param SymlinkFilesystem $filesystem
+     */
+    protected function setFilesystem(SymlinkFilesystem $filesystem = null)
+    {
+        if (null == $filesystem) {
+            $this->filesystem = new SymlinkFilesystem();
+        }
+    }
+
+    /**
+     * @param PackageDataManagerInterface $dataManager
+     */
+    protected function setDataManager(PackageDataManagerInterface $dataManager = null)
+    {
+        if (null == $dataManager) {
+            $this->packageDataManager = new SharedPackageDataManager($this->composer, $this->vendorDir);
         }
     }
 
