@@ -318,8 +318,10 @@ class SharedPackageInstaller extends LibraryInstaller
     protected function setFilesystem(SymlinkFilesystem $filesystem = null)
     {
         if (null == $filesystem) {
-            $this->filesystem = new SymlinkFilesystem();
+            $filesystem = new SymlinkFilesystem();
         }
+
+        $this->filesystem = $filesystem;
     }
 
     /**
@@ -328,8 +330,10 @@ class SharedPackageInstaller extends LibraryInstaller
     protected function setDataManager(PackageDataManagerInterface $dataManager = null)
     {
         if (null == $dataManager) {
-            $this->packageDataManager = new SharedPackageDataManager($this->composer, $this->vendorDir);
+            $dataManager = new SharedPackageDataManager($this->composer, $this->vendorDir);
         }
+
+        $this->packageDataManager = $dataManager;
     }
 
     /**
