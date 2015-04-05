@@ -307,7 +307,8 @@ class SharedPackageInstaller extends LibraryInstaller
                 ''
             ));
 
-            $this->filesystem->removeEmptyDirectory(dirname($this->getPackageVendorSymlink($package)));
+            $symlinkParentDirectory = dirname($this->getPackageVendorSymlink($package));
+            $this->filesystem->removeEmptyDirectory($symlinkParentDirectory);
         }
     }
 
