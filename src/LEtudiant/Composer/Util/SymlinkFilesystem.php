@@ -11,7 +11,6 @@
 
 namespace LEtudiant\Composer\Util;
 
-use Composer\Downloader\FilesystemException;
 use Composer\Util\Filesystem;
 
 /**
@@ -43,14 +42,14 @@ class SymlinkFilesystem extends Filesystem
      *
      * @return bool
      *
-     * @throws FilesystemException
+     * @throws \RuntimeException
      */
     public function removeSymlink($symlinkPath)
     {
         if (is_link($symlinkPath)) {
             if (!$this->unlink($symlinkPath)) {
                 // @codeCoverageIgnoreStart
-                throw new FilesystemException('Unable to remove the symlink : ' . $symlinkPath);
+                throw new \RuntimeException('Unable to remove the symlink : ' . $symlinkPath);
                 // @codeCoverageIgnoreEnd
             }
 
@@ -65,14 +64,14 @@ class SymlinkFilesystem extends Filesystem
      *
      * @return bool
      *
-     * @throws FilesystemException
+     * @throws \RuntimeException
      */
     public function removeEmptyDirectory($directoryPath)
     {
         if (is_dir($directoryPath) && $this->isDirEmpty($directoryPath)) {
             if (!$this->removeDirectory($directoryPath)) {
                 // @codeCoverageIgnoreStart
-                throw new FilesystemException('Unable to remove the directory : ' . $directoryPath);
+                throw new \RuntimeException('Unable to remove the directory : ' . $directoryPath);
                 // @codeCoverageIgnoreEnd
             }
 
