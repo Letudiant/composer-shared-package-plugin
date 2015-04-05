@@ -51,8 +51,8 @@ class SharedPackageInstallerConfig
     }
 
     /**
-     * @param string $baseDir
-     * @param array  $extra
+     * @param string     $baseDir
+     * @param null|array $extra
      */
     protected function setSymlinkDirectory($baseDir, $extra)
     {
@@ -68,8 +68,8 @@ class SharedPackageInstallerConfig
     }
 
     /**
-     * @param string $baseDir
-     * @param array  $extra
+     * @param string     $baseDir
+     * @param null|array $extra
      *
      * @throws \InvalidArgumentException
      */

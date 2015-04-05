@@ -19,8 +19,8 @@ use Composer\Package\Package;
 use Composer\Package\RootPackage;
 use Composer\Repository\InstalledRepositoryInterface;
 use Composer\TestCase;
-use Composer\Util\Filesystem;
 use LEtudiant\Composer\Installer\SharedPackageInstaller;
+use LEtudiant\Composer\Util\SymlinkFilesystem;
 
 /**
  * @author Sylvain Lorinet <sylvain.lorinet@gmail.com>
@@ -75,7 +75,7 @@ class SharedPackageInstallerTest extends TestCase
     protected $io;
 
     /**
-     * @var Filesystem
+     * @var SymlinkFilesystem
      */
     protected $fs;
 
@@ -85,7 +85,7 @@ class SharedPackageInstallerTest extends TestCase
      */
     protected function setUp()
     {
-        $this->fs = new Filesystem();
+        $this->fs = new SymlinkFilesystem();
         $this->composer = new Composer();
         $this->config = new Config();
 
@@ -143,19 +143,6 @@ class SharedPackageInstallerTest extends TestCase
 
     /**
      * @test
-     *
-     * @expectedException \InvalidArgumentException
-     * @expectedExceptionMessage The "vendor-dir" parameter for "shared-package" configuration should be provided in your composer.json (extra part)
-     */
-    public function vendorDirIsRequiredException()
-    {
-        $this->composer->setPackage($this->getMock('Composer\Package\RootPackageInterface'));
-
-        new SharedPackageInstaller($this->io, $this->composer);
-    }
-
-    /**
-     * @test
      */
     public function testInstallerCreationShouldNotCreateVendorDirectory()
     {
@@ -172,93 +159,6 @@ class SharedPackageInstallerTest extends TestCase
         $this->fs->removeDirectory($this->binDir);
         new SharedPackageInstaller($this->io, $this->composer);
         $this->assertFileNotExists($this->binDir);
-    }
-
-    /**
-     * @test
-     */
-    public function constructWithoutOptionalConfiguration()
-    {
-        /** @var RootPackage|\PHPUnit_Framework_MockObject_MockObject $package */
-        $package = $this->getMock('Composer\Package\RootPackageInterface');
-        $package
-            ->expects($this->once())
-            ->method('getExtra')
-            ->willReturn(array(
-                SharedPackageInstaller::PACKAGE_TYPE => array(
-                    'vendor-dir' => $this->dependenciesDir
-                )
-            ))
-        ;
-
-        $this->composer->setPackage($package);
-        $installer = new SharedPackageInstaller($this->io, $this->composer);
-
-        $this->assertEquals($this->dependenciesDir, $this->getObjectAttribute($installer, 'vendorDir'));
-        $this->assertEquals('vendor-shared', $this->getObjectAttribute($installer, 'symlinkDir'));
-        $this->assertEquals($this->vendorDir, $this->getObjectAttribute($installer, 'originalVendorDir'));
-    }
-
-    /**
-     * @test
-     */
-    public function constructWithRelationVendorDirConfiguration()
-    {
-        /** @var RootPackage|\PHPUnit_Framework_MockObject_MockObject $package */
-        $package = $this->getMock('Composer\Package\RootPackageInterface');
-        $package
-            ->expects($this->once())
-            ->method('getExtra')
-            ->willReturn(array(
-                SharedPackageInstaller::PACKAGE_TYPE => array(
-                    'vendor-dir' => 'foo'
-                )
-            ))
-        ;
-
-        $this->composer->setPackage($package);
-        $installer = new SharedPackageInstaller($this->io, $this->composer);
-
-        $this->assertEquals('foo', $this->getObjectAttribute($installer, 'vendorDir'));
-    }
-
-    /**
-     * @test
-     *
-     * @dataProvider constructWithOptionalConfigurationDataProvider
-     *
-     * @param string $expectedValue
-     */
-    public function constructWithOptionalConfiguration($expectedValue)
-    {
-        /** @var RootPackage|\PHPUnit_Framework_MockObject_MockObject $package */
-        $package = $this->getMock('Composer\Package\RootPackageInterface');
-        $package
-            ->expects($this->once())
-            ->method('getExtra')
-            ->willReturn(array(
-                SharedPackageInstaller::PACKAGE_TYPE => array(
-                    'vendor-dir'  => $this->dependenciesDir,
-                    'symlink-dir' => $expectedValue
-                )
-            ))
-        ;
-
-        $this->composer->setPackage($package);
-        $installer = new SharedPackageInstaller($this->io, $this->composer);
-
-        $this->assertEquals($expectedValue, $this->getObjectAttribute($installer, 'symlinkDir'));
-    }
-
-    /**
-     * @return array
-     */
-    public function constructWithOptionalConfigurationDataProvider()
-    {
-        return array(
-            array('vendor-symlink'),
-            array('/vendor-symlink')
-        );
     }
 
     /**
@@ -295,7 +195,7 @@ class SharedPackageInstallerTest extends TestCase
 
         $this->fs->ensureDirectoryExists($library->getInstallPath($package));
         $reflection = new \ReflectionObject($library);
-        $method = $reflection->getMethod('initializeVendorSymlink');
+        $method = $reflection->getMethod('createPackageVendorSymlink');
         $method->setAccessible(true);
         $method->invokeArgs($library, array($package));
 
@@ -382,7 +282,7 @@ class SharedPackageInstallerTest extends TestCase
      */
     public function updateStableToStable()
     {
-        $filesystem = $this->getMockBuilder('Composer\Util\Filesystem')
+        $filesystem = $this->getMockBuilder('LEtudiant\Composer\Util\SymlinkFilesystem')
             ->getMock();
         $filesystem
             ->expects($this->once())
@@ -422,7 +322,7 @@ class SharedPackageInstallerTest extends TestCase
             ->expects($this->once())
             ->method('addPackage')
             ->with($target);
-        $library = new SharedPackageInstaller($this->io, $this->composer, 'library', $filesystem);
+        $library = new SharedPackageInstaller($this->io, $this->composer, $filesystem);
         $library->update($this->repository, $initial, $target);
         $this->assertFileExists($this->vendorDir, 'Vendor dir should be created');
         $this->assertFileExists($this->binDir, 'Bin dir should be created');
@@ -623,7 +523,14 @@ class SharedPackageInstallerTest extends TestCase
             ->method('askConfirmation')
             ->willReturn(true);
 
-        $library = new SharedPackageInstaller($this->io, $this->composer);
+        $filesystem = $this->getMock('\LEtudiant\Composer\Util\SymlinkFilesystem');
+        $filesystem
+            ->expects($this->once())
+            ->method('removeSymlink')
+            ->willReturn(true)
+        ;
+
+        $library = new SharedPackageInstaller($this->io, $this->composer, $filesystem);
         $package = $this->createDevelopmentPackageMock();
 
         $this->repository

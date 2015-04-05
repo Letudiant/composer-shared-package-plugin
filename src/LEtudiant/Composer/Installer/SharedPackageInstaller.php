@@ -58,7 +58,7 @@ class SharedPackageInstaller extends LibraryInstaller
     {
         $this->setFilesystem($filesystem);
 
-        parent::__construct($io, $composer, $type, $filesystem);
+        parent::__construct($io, $composer, $type, $this->filesystem);
 
         $this->setDataManager($dataManager);
 
