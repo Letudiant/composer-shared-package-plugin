@@ -19,6 +19,7 @@ use Composer\Package\PackageInterface;
 use Composer\Repository\InstalledRepositoryInterface;
 use LEtudiant\Composer\Data\Package\PackageDataManagerInterface;
 use LEtudiant\Composer\Data\Package\SharedPackageDataManager;
+use LEtudiant\Composer\Installer\Config\SharedPackageInstallerConfig;
 use LEtudiant\Composer\Util\SymlinkFilesystem;
 
 /**
@@ -29,19 +30,9 @@ class SharedPackageInstaller extends LibraryInstaller
     const PACKAGE_TYPE = 'shared-package';
 
     /**
-     * @var string
+     * @var SharedPackageInstallerConfig
      */
-    protected $symlinkDir;
-
-    /**
-     * @var string
-     */
-    protected $sourcesDir;
-
-    /**
-     * @var string
-     */
-    protected $originalVendorDir;
+    protected $config;
 
     /**
      * @var PackageDataManagerInterface
@@ -70,13 +61,15 @@ class SharedPackageInstaller extends LibraryInstaller
         parent::__construct($io, $composer, $type, $filesystem);
 
         $this->setDataManager($dataManager);
-        $config = $this->composer->getConfig();
-        $this->originalVendorDir = $config->get('vendor-dir');
-        $baseDir = substr($this->originalVendorDir, 0, -strlen($config->get('vendor-dir', 1)));
 
-        $extra = $this->composer->getPackage()->getExtra();
-        $this->setSymlinkDirectory($baseDir, $extra);
-        $this->setVendorDir($baseDir, $extra);
+        $config = $this->composer->getConfig();
+        $this->config = new SharedPackageInstallerConfig(
+            $config->get('vendor-dir'),
+            $config->get('vendor-dir', 1),
+            $this->composer->getPackage()->getExtra()
+        );
+
+        $this->vendorDir = $this->config->getVendorDir();
     }
 
     /**
@@ -88,9 +81,9 @@ class SharedPackageInstaller extends LibraryInstaller
     {
         // For stable version (tag), let it in the normal vendor directory, as a folder (not symlink)
         if (!$package->isDev()) {
-            $this->filesystem->ensureDirectoryExists($this->originalVendorDir);
+            $this->filesystem->ensureDirectoryExists($this->config->getOriginalVendorDir());
 
-            return ($this->originalVendorDir ? $this->originalVendorDir . '/' : '') . $package->getPrettyName();
+            return $this->config->getOriginalVendorDir(true) . $package->getPrettyName();
         }
 
         $this->filesystem->ensureDirectoryExists($this->vendorDir);
@@ -109,7 +102,7 @@ class SharedPackageInstaller extends LibraryInstaller
      */
     protected function getPackageVendorSymlink(PackageInterface $package)
     {
-        return $this->symlinkDir . DIRECTORY_SEPARATOR . $package->getPrettyName();
+        return $this->config->getSymlinkDir() . DIRECTORY_SEPARATOR . $package->getPrettyName();
     }
 
     /**
@@ -240,43 +233,6 @@ class SharedPackageInstaller extends LibraryInstaller
     }
 
     /**
-     * @param string $baseDir
-     * @param array  $extra
-     */
-    protected function setSymlinkDirectory($baseDir, $extra)
-    {
-        $this->symlinkDir = $baseDir . 'vendor-shared';
-
-        if (isset($extra[self::PACKAGE_TYPE]['symlink-dir'])) {
-            $this->symlinkDir = $extra[self::PACKAGE_TYPE]['symlink-dir'];
-            if ('/' != $this->symlinkDir[0]) {
-                $this->symlinkDir = $baseDir . $this->symlinkDir;
-            }
-        }
-    }
-
-    /**
-     * @param string $baseDir
-     * @param array  $extra
-     *
-     * @throws \InvalidArgumentException
-     */
-    protected function setVendorDir($baseDir, $extra)
-    {
-        if (!isset($extra[self::PACKAGE_TYPE]['vendor-dir'])) {
-            throw new \InvalidArgumentException(
-                'The "vendor-dir" parameter for "' . self::PACKAGE_TYPE . '" configuration should be provided in your '
-                . 'composer.json (extra part)'
-            );
-        }
-
-        $this->vendorDir = $baseDir . $extra[self::PACKAGE_TYPE]['vendor-dir'];
-        if ('/' != $this->vendorDir[0]) {
-            $this->vendorDir = $baseDir . $this->vendorDir;
-        }
-    }
-
-    /**
      * @param PackageInterface $package
      */
     protected function createPackageVendorSymlink(PackageInterface $package)
@@ -313,7 +269,7 @@ class SharedPackageInstaller extends LibraryInstaller
     }
 
     /**
-     * @param SymlinkFilesystem $filesystem
+     * @param null|SymlinkFilesystem $filesystem
      */
     protected function setFilesystem(SymlinkFilesystem $filesystem = null)
     {
@@ -325,7 +281,7 @@ class SharedPackageInstaller extends LibraryInstaller
     }
 
     /**
-     * @param PackageDataManagerInterface $dataManager
+     * @param null|PackageDataManagerInterface $dataManager
      */
     protected function setDataManager(PackageDataManagerInterface $dataManager = null)
     {
