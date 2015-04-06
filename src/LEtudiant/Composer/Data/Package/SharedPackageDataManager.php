@@ -38,11 +38,17 @@ class SharedPackageDataManager implements PackageDataManagerInterface
 
     /**
      * @param Composer $composer
-     * @param string   $vendorDir
      */
-    public function __construct(Composer $composer, $vendorDir)
+    public function __construct(Composer $composer)
     {
         $this->composer  = $composer;
+    }
+
+    /**
+     * @param string $vendorDir
+     */
+    public function setVendorDir($vendorDir)
+    {
         $this->vendorDir = $vendorDir;
     }
 

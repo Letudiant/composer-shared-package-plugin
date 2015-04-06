@@ -46,4 +46,11 @@ interface PackageDataManagerInterface
      * @param PackageInterface $package
      */
     public function setPackageInstallationSource(PackageInterface $package);
+
+    /**
+     * Set the vendor directory to save the "packages.json" file
+     *
+     * @param string $vendorDir
+     */
+    public function setVendorDir($vendorDir);
 }

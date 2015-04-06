@@ -77,7 +77,8 @@ class SharedPackageDataManagerTest extends \PHPUnit_Framework_TestCase
      */
     public function getPackageUsageWithoutFile()
     {
-        $dataManager = new SharedPackageDataManager($this->composer, $this->vendorDir);
+        $dataManager = new SharedPackageDataManager($this->composer);
+        $dataManager->setVendorDir($this->vendorDir);
 
         $this->assertEquals(array(), $dataManager->getPackageUsage($this->createPackage()));
     }
@@ -88,7 +89,8 @@ class SharedPackageDataManagerTest extends \PHPUnit_Framework_TestCase
     public function getPackageUsageWithFile()
     {
         $this->initializePackageData();
-        $dataManager = new SharedPackageDataManager($this->composer, $this->vendorDir);
+        $dataManager = new SharedPackageDataManager($this->composer);
+        $dataManager->setVendorDir($this->vendorDir);
 
         $this->assertEquals(array(
             'letudiant/root-package'
@@ -100,7 +102,8 @@ class SharedPackageDataManagerTest extends \PHPUnit_Framework_TestCase
      */
     public function addPackageUsageWithoutData()
     {
-        $dataManager = new SharedPackageDataManager($this->composer, $this->vendorDir);
+        $dataManager = new SharedPackageDataManager($this->composer);
+        $dataManager->setVendorDir($this->vendorDir);
 
         $this->rootPackage
             ->expects($this->once())
@@ -148,7 +151,8 @@ class SharedPackageDataManagerTest extends \PHPUnit_Framework_TestCase
      */
     public function addPackageUsageWithHasData()
     {
-        $dataManager = new SharedPackageDataManager($this->composer, $this->vendorDir);
+        $dataManager = new SharedPackageDataManager($this->composer);
+        $dataManager->setVendorDir($this->vendorDir);
 
         $this->initializePackageData();
 
@@ -201,7 +205,8 @@ class SharedPackageDataManagerTest extends \PHPUnit_Framework_TestCase
      */
     public function packageWithoutInstallationSource()
     {
-        $dataManager = new SharedPackageDataManager($this->composer, $this->vendorDir);
+        $dataManager = new SharedPackageDataManager($this->composer);
+        $dataManager->setVendorDir($this->vendorDir);
 
         $this->rootPackage
             ->expects($this->once())
@@ -236,7 +241,8 @@ class SharedPackageDataManagerTest extends \PHPUnit_Framework_TestCase
      */
     public function removePackageUsageWithoutData()
     {
-        $dataManager = new SharedPackageDataManager($this->composer, $this->vendorDir);
+        $dataManager = new SharedPackageDataManager($this->composer);
+        $dataManager->setVendorDir($this->vendorDir);
 
         $this->rootPackage
             ->expects($this->once())
@@ -278,7 +284,8 @@ class SharedPackageDataManagerTest extends \PHPUnit_Framework_TestCase
     {
         $this->initializePackageData();
 
-        $dataManager = new SharedPackageDataManager($this->composer, $this->vendorDir);
+        $dataManager = new SharedPackageDataManager($this->composer);
+        $dataManager->setVendorDir($this->vendorDir);
 
         $this->rootPackage
             ->expects($this->exactly(2))
@@ -321,7 +328,8 @@ class SharedPackageDataManagerTest extends \PHPUnit_Framework_TestCase
         // Remove another package, should not remove the initial package
         $this->initializePackageData();
 
-        $dataManager = new SharedPackageDataManager($this->composer, $this->vendorDir);
+        $dataManager = new SharedPackageDataManager($this->composer);
+        $dataManager->setVendorDir($this->vendorDir);
         $dataManager->removePackageUsage($package);
 
         $this->assertFileExists($this->vendorDir . '/' . SharedPackageDataManager::PACKAGE_DATA_FILENAME);
@@ -356,7 +364,8 @@ class SharedPackageDataManagerTest extends \PHPUnit_Framework_TestCase
         ;
 
         // With already provided installation source
-        $dataManager = new SharedPackageDataManager($this->composer, $this->vendorDir);
+        $dataManager = new SharedPackageDataManager($this->composer);
+        $dataManager->setVendorDir($this->vendorDir);
         $dataManager->setPackageInstallationSource($package);
     }
 
@@ -379,7 +388,8 @@ class SharedPackageDataManagerTest extends \PHPUnit_Framework_TestCase
         ;
 
         $this->initializePackageData();
-        $dataManager = new SharedPackageDataManager($this->composer, $this->vendorDir);
+        $dataManager = new SharedPackageDataManager($this->composer);
+        $dataManager->setVendorDir($this->vendorDir);
         $dataManager->setPackageInstallationSource($package);
     }
 
@@ -401,7 +411,8 @@ class SharedPackageDataManagerTest extends \PHPUnit_Framework_TestCase
             ->with(null)
         ;
 
-        $dataManager = new SharedPackageDataManager($this->composer, $this->vendorDir);
+        $dataManager = new SharedPackageDataManager($this->composer);
+        $dataManager->setVendorDir($this->vendorDir);
         $dataManager->setPackageInstallationSource($package);
     }
 
@@ -454,4 +465,3 @@ class SharedPackageDataManagerTest extends \PHPUnit_Framework_TestCase
         return $package;
     }
 }
- 

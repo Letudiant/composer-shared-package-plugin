@@ -40,7 +40,7 @@ Add, to your root project `composer.json`, this require :
 // composer.json (project)
 {
     "require": {
-        "letudiant/composer-shared-package-plugin": "~1.0"
+        "letudiant/composer-shared-package-plugin": "dev-master"
         
         // ...
     }
@@ -157,9 +157,9 @@ With this `composer.json`, the structure will look like :
 
 This plugin implement a new behavior which is not handled by Composer, so there are a few known issues. Here, the way to fix them :
 
-* Update only your own packages
-* Disable this plugin in development environment (for CI purpose, for example)
-* Work with Satis : increase the Composer speed
+* [Update only your own packages](./docs/how-to-use/update-only-your-own-packages.md)
+* [Disable this plugin in development environment (for CI purpose, for example)](./docs/how-to-use/disable-this-plugin-in-development-environment.md)
+* [Work with Satis : increase the Composer speed](./docs/how-to-use/work-with-satis.md)
 
 
 ## All available configurations

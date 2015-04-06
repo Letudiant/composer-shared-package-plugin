@@ -70,6 +70,7 @@ class SharedPackageInstaller extends LibraryInstaller
         );
 
         $this->vendorDir = $this->config->getVendorDir();
+        $this->packageDataManager->setVendorDir($this->vendorDir);
     }
 
     /**
@@ -209,12 +210,13 @@ class SharedPackageInstaller extends LibraryInstaller
             $this->packageDataManager->setPackageInstallationSource($package);
 
             parent::uninstall($repo, $package);
+
+            $this->packageDataManager->removePackageUsage($package);
         } else {
             $this->removeBinaries($package);
             $repo->removePackage($package);
         }
 
-        $this->packageDataManager->removePackageUsage($package);
         $this->removePackageVendorSymlink($package);
     }
 
@@ -229,7 +231,7 @@ class SharedPackageInstaller extends LibraryInstaller
     {
         $usageData = $this->packageDataManager->getPackageUsage($package);
 
-        return 0 == sizeof($usageData);
+        return 1 == sizeof($usageData);
     }
 
     /**
@@ -286,7 +288,7 @@ class SharedPackageInstaller extends LibraryInstaller
     protected function setDataManager(PackageDataManagerInterface $dataManager = null)
     {
         if (null == $dataManager) {
-            $dataManager = new SharedPackageDataManager($this->composer, $this->vendorDir);
+            $dataManager = new SharedPackageDataManager($this->composer);
         }
 
         $this->packageDataManager = $dataManager;
