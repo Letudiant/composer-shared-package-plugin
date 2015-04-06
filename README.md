@@ -113,7 +113,7 @@ Here, a complete example. Our own shared package is called `acme/foo-bar`.
 {
     "require": {
         "letudiant/composer-shared-package-plugin": "~1.0",
-        "symfony/console: "~2.6",
+        "symfony/console": "~2.6",
         "acme/foo-bar": "~1.0"
     },
     "require-dev": {
