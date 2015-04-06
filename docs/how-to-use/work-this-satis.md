@@ -11,3 +11,7 @@ The only way to increase the Composer speed, is to install a proxy to host our c
 For more information about the Satis installation/configuration, please read [the official documentation](https://getcomposer.org/doc/articles/handling-private-packages-with-satis.md#satis).
 
 With 10 customs repositories, Composer took about 2/3 minutes to proceed the `update` command and only ~10 seconds after than Satis was installed.
+
+### Next
+
+See [Update only your own packages](./update-only-your-own-packages.md).

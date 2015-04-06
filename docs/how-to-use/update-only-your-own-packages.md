@@ -13,3 +13,7 @@ If you have packages without the same prefix, no worry, just execute this comman
 `composer update "acme*" "other-prefix*" "yet-another-prefix*"`
 
 So, when you run a `composer install`, don't forget to run the `composer update "prefix*"` command  after to update your own shared packages because the `composer.lock` keeps only the installation commit reference *(after the first `composer install` command)*, and not your branches `HEAD`.
+
+### Next
+
+See [Disable this plugin in development environment (for CI purpose, for example)](./disable-this-plugin-in-development-environment.md).

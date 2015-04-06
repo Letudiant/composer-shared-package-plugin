@@ -17,7 +17,7 @@ A stable package (tagged version) won't be shared, because you should'nt modify 
 * [How to use (known issues)](#how-to-use-known-issues)
  * [Update only your own packages](./docs/how-to-use/update-only-your-own-packages.md)
  * [Disable this plugin in development environment (for CI purpose, for example)](./docs/how-to-use/disable-this-plugin-in-development-environment.md)
- * [Work with Satis : increase the Composer speed](./docs/work-with-satis.md)
+ * [Work with Satis : increase the Composer speed](./docs/how-to-use/work-with-satis.md)
 * [All available configurations](#all-available-configurations)
 * [Reporting an issue or a feature request](#reporting-an-issue-or-a-feature-request)
 * [Credit](#credit)
