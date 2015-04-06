@@ -11,14 +11,17 @@ A stable package (tagged version) won't be shared, because you should'nt modify 
 
 **This plugin will improve your work process to avoid to work into the `vendor` folder or to avoid to force you to push your package to work/test it with another project.**
 
-* How it works
-* Installation
-* Example
-* How to use (known issues)
+* [How it works](./#how-it-works)
+* [Installation](./#installation)
+* [Structure generation example](./#structure-generation-example)
+* [How to use (known issues)](#how-to-use-known-issues)
  * Update only your own packages
  * Disable this plugin in development environment (for CI purpose, for example)
  * Work with Satis : increase the Composer speed
-* All available configurations
+* [All available configurations](./#all-available-configurations)
+* [Reporting an issue or a feature request](./#reporting-an-issue-or-a-feature-request)
+* [Credit](./#credit)
+* [License](./#license)
 
 ## How it works
 
@@ -89,12 +92,12 @@ You can avoid to have two project `composer.json` by setting your `require` depe
 ``` json
 // composer.json (project)
 {
-	"require": {
-		"acme/foo-bar": "~1.0"
-	},
-	"require-dev": {
-		"acme/foo-bar": "dev-develop as 1.0"
-	}
+    "require": {
+        "acme/foo-bar": "~1.0"
+    },
+    "require-dev": {
+      "acme/foo-bar": "dev-develop as 1.0"
+    }
 }
 ```
 
@@ -152,8 +155,7 @@ With this `composer.json`, the structure will look like :
 
 ## How to use (known issues)
 
-This plugin implement a new behavior which is not handled by Composer, so there are a few known issues.  
-Here, the way to fix them :
+This plugin implement a new behavior which is not handled by Composer, so there are a few known issues. Here, the way to fix them :
 
 * Update only your own packages
 * Disable this plugin in development environment (for CI purpose, for example)
@@ -164,7 +166,18 @@ Here, the way to fix them :
 
 See the [all available configurations documentation](./docs/all-available-configurations.md).
 
+## Reporting an issue or a feature request
+
+Feel free to open an issue, fork this project or suggest an awesome new feature in [the issue tracker](./issues).
+
+## Credit
+
+![L'Étudiant](http://www.letudiant.fr/etucmsEtuPlugin/images/header/logo.png)
+
+This plugin project is maintained by **[L'Etudiant](https://github.com/Letudiant)**.  
+The Composer project is maintained by Nils Adermann & Jordi Boggiano, see https://github.com/composer/composer#authors for more information.
+
 ## License
 
 This plugin is licensed under MIT license, see the [LICENSE file](./LICENSE) for more information.  
-You can also read the [Composer license](https://github.com/composer/composer/blob/master/LICENSE).
+You can also read the [Composer license](https://github.com/composer/composer/blob/master/LICENSE) for more information.

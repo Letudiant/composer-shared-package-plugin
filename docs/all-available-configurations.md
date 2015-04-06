@@ -10,8 +10,8 @@ All these configuration should set in the `extra` `shared-package`configuration 
 ### Example
 
 ``` json
+// composer.json (project)
 {
-    // composer.json (project)
     {
         "extra": {
             "shared-package": {
