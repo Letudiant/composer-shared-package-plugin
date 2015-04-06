@@ -231,7 +231,7 @@ class SharedPackageInstaller extends LibraryInstaller
     {
         $usageData = $this->packageDataManager->getPackageUsage($package);
 
-        return 1 == sizeof($usageData);
+        return sizeof($usageData) <= 1;
     }
 
     /**
