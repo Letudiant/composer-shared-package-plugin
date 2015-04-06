@@ -11,17 +11,17 @@ A stable package (tagged version) won't be shared, because you should'nt modify 
 
 **This plugin will improve your work process to avoid to work into the `vendor` folder or to avoid to force you to push your package to work/test it with another project.**
 
-* [How it works](./#how-it-works)
-* [Installation](./#installation)
-* [Structure generation example](./#structure-generation-example)
+* [How it works](#how-it-works)
+* [Installation](#installation)
+* [Structure generation example](#structure-generation-example)
 * [How to use (known issues)](#how-to-use-known-issues)
  * Update only your own packages
  * Disable this plugin in development environment (for CI purpose, for example)
  * Work with Satis : increase the Composer speed
-* [All available configurations](./#all-available-configurations)
-* [Reporting an issue or a feature request](./#reporting-an-issue-or-a-feature-request)
-* [Credit](./#credit)
-* [License](./#license)
+* [All available configurations](#all-available-configurations)
+* [Reporting an issue or a feature request](#reporting-an-issue-or-a-feature-request)
+* [Credit](#credit)
+* [License](#license)
 
 ## How it works
 
