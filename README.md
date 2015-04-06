@@ -15,9 +15,9 @@ A stable package (tagged version) won't be shared, because you should'nt modify 
 * [Installation](#installation)
 * [Structure generation example](#structure-generation-example)
 * [How to use (known issues)](#how-to-use-known-issues)
- * Update only your own packages
- * Disable this plugin in development environment (for CI purpose, for example)
- * Work with Satis : increase the Composer speed
+ * [Update only your own packages](./docs/how-to-use/update-only-your-own-packages.md)
+ * [Disable this plugin in development environment (for CI purpose, for example)](./docs/how-to-use/disable-this-plugin-in-development-environment.md)
+ * [Work with Satis : increase the Composer speed](./docs/work-with-satis.md)
 * [All available configurations](#all-available-configurations)
 * [Reporting an issue or a feature request](#reporting-an-issue-or-a-feature-request)
 * [Credit](#credit)
@@ -103,9 +103,9 @@ You can avoid to have two project `composer.json` by setting your `require` depe
 
 Thanks to that, you will be able to work with development version in dev environement and have stable version in production.
 
-**Note:** the alias `* as 1.0` may avoid a Composer version solver error, because this behavior is not handled by default.
+**Note:** the alias `* as 1.0` may avoid a Composer version solver error, because this behavior is not handled by default.  
 **Note²:** Composer has not been created to work with development version/branch, so when you run a `composer install`, the current package branch `HEAD` commit will flagged in your `composer.lock`.  
-So, the next time you'll run this command on dev environement, and if you already have a `composer.lock` file, Composer will checkout the flagged commit and not the new `HEAD` *(if you made new commit)* of your branch : **your shared packages won't be up to date**. To avoid this behavior, please read "".
+So, the next time you'll run this command on dev environement, and if you already have a `composer.lock` file, Composer will checkout the flagged commit and not the new `HEAD` *(if you made new commit)* of your branch : **your shared packages won't be up to date**. To avoid this behavior, please read "[How to use - Update only your own packages](./docs/how-to-use/update-only-your-own-packages.md)".
 
 ## Structure generation example
 
