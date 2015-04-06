@@ -12,12 +12,10 @@ All these configuration should set in the `extra` `shared-package`configuration 
 ``` json
 // composer.json (project)
 {
-    {
-        "extra": {
-            "shared-package": {
-                "vendor-dir": "/var/projects/composer-dependencies",
-                "symlink-dir": "symlinks-folder"
-            }
+    "extra": {
+        "shared-package": {
+            "vendor-dir": "/var/projects/composer-dependencies",
+            "symlink-dir": "symlinks-folder"
         }
     }
 }

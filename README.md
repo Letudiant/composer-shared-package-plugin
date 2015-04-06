@@ -168,7 +168,7 @@ See the [all available configurations documentation](./docs/all-available-config
 
 ## Reporting an issue or a feature request
 
-Feel free to open an issue, fork this project or suggest an awesome new feature in [the issue tracker](./issues).
+Feel free to open an issue, fork this project or suggest an awesome new feature in [the issue tracker](https://github.com/Letudiant/composer-shared-package-plugin/issues).
 
 ## Credit
 
