@@ -40,7 +40,7 @@ Add, to your root project `composer.json`, this require :
 // composer.json (project)
 {
     "require": {
-        "letudiant/composer-shared-package-plugin": "dev-master"
+        "letudiant/composer-shared-package-plugin": "~1.0"
         
         // ...
     }
