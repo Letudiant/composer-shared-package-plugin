@@ -6,10 +6,10 @@
 [![Test Coverage](https://codeclimate.com/github/Letudiant/composer-shared-package-plugin/badges/coverage.svg)](https://codeclimate.com/github/Letudiant/composer-shared-package-plugin)
 
 This composer plugin allows you to share **your own development packages between your projects by creating symlinks**.  
-All shared packages will be **in the same dedicated directory** for all of your projects (ordered by versions) and **a symlink directory container will be created on your projects** (`vendor-shared` by default).  
+All shared packages will be in the same dedicated directory for all of your projects (ordered by versions) and a symlink directory container will be created on your projects (`vendor-shared` by default).  
 A stable package (tagged version) won't be shared, because you should'nt modify a stable package.
 
-**This plugin will improve your work process to avoid to work into the `vendor` folder or to avoid to force you to push your package to work/test it with another project.**
+**This plugin will improve your work process** to avoid to work into the `vendor` folder or to avoid to force you to push your package to work/test it with another project.
 
 * [How it works](#how-it-works)
 * [Installation](#installation)
