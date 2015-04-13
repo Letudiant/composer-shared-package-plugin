@@ -33,6 +33,11 @@ class SharedPackageInstallerConfig
      */
     protected $vendorDir;
 
+    /**
+     * @var string|null
+     */
+    protected $symlinkBasePath;
+
 
     /**
      * @param string     $originalRelativeVendorDir
@@ -46,8 +51,8 @@ class SharedPackageInstallerConfig
         $baseDir = substr($originalAbsoluteVendorDir, 0, -strlen($this->originalVendorDir));
 
         $this->setSymlinkDirectory($baseDir, $extraConfigs);
+        $this->setSymlinkBasePath($extraConfigs);
         $this->setVendorDir($baseDir, $extraConfigs);
-
     }
 
     /**
@@ -89,6 +94,25 @@ class SharedPackageInstallerConfig
     }
 
     /**
+     * Allow to override symlinks base path.
+     * This is useful for a Virtual Machine environment, where directories can be different
+     * on the host machine and the guest machine.
+     *
+     * @param array|null $extra
+     */
+    protected function setSymlinkBasePath($extra)
+    {
+        if (isset($extra[SharedPackageInstaller::PACKAGE_TYPE]['symlink-base-path'])) {
+            $this->symlinkBasePath = $extra[SharedPackageInstaller::PACKAGE_TYPE]['symlink-base-path'];
+
+            // Remove the ending slash if exists
+            if ('/' === $this->symlinkBasePath[strlen($this->symlinkBasePath) - 1]) {
+                $this->symlinkBasePath = substr($this->symlinkBasePath, 0, -1);
+            }
+        }
+    }
+
+    /**
      * @return string
      */
     public function getVendorDir()
@@ -116,5 +140,13 @@ class SharedPackageInstallerConfig
         }
 
         return $this->originalVendorDir;
+    }
+
+    /**
+     * @return string|null
+     */
+    public function getSymlinkBasePath()
+    {
+        return $this->symlinkBasePath;
     }
 }

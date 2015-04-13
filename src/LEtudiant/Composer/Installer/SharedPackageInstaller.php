@@ -240,9 +240,9 @@ class SharedPackageInstaller extends LibraryInstaller
     protected function createPackageVendorSymlink(PackageInterface $package)
     {
         if ($this->filesystem->ensureSymlinkExists(
-            $this->getInstallPath($package),
-            $this->getPackageVendorSymlink($package)
-        )) {
+            $this->getSymlinkSourcePath($package),
+            $this->getPackageVendorSymlink($package))
+        ) {
             $this->io->write(array(
                 '  - Creating symlink for <info>' . $package->getPrettyName()
                 . '</info> (<fg=yellow>' . $package->getPrettyVersion() . '</fg=yellow>)',
@@ -250,6 +250,29 @@ class SharedPackageInstaller extends LibraryInstaller
             ));
         }
     }
+
+    /**
+     * @param PackageInterface $package
+     *
+     * @return string
+     */
+    protected function getSymlinkSourcePath(PackageInterface $package)
+    {
+        if (null != $this->config->getSymlinkBasePath()) {
+            $targetDir = $package->getTargetDir();
+            $sourcePath =
+                $this->config->getSymlinkBasePath()
+                . '/' . $package->getPrettyName()
+                . '/' . $package->getPrettyVersion()
+                . ($targetDir ? '/' . $targetDir : '')
+            ;
+        } else {
+            $sourcePath = $this->getInstallPath($package);
+        }
+
+        return $sourcePath;
+    }
+
 
     /**
      * @param PackageInterface $package
