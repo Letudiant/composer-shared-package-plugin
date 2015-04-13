@@ -60,17 +60,17 @@ class SharedPackageInstallerTest extends TestCase
     protected $dependenciesDir;
 
     /**
-     * @var DownloadManager
+     * @var DownloadManager|\PHPUnit_Framework_MockObject_MockObject
      */
     protected $dm;
 
     /**
-     * @var InstalledRepositoryInterface
+     * @var InstalledRepositoryInterface|\PHPUnit_Framework_MockObject_MockObject
      */
     protected $repository;
 
     /**
-     * @var IOInterface
+     * @var IOInterface|\PHPUnit_Framework_MockObject_MockObject
      */
     protected $io;
 
@@ -260,6 +260,8 @@ class SharedPackageInstallerTest extends TestCase
         $this->assertFileExists($this->vendorDir, 'Vendor dir should be created');
         $this->assertFileExists($this->binDir, 'Bin dir should be created');
         $this->assertFileExists($this->symlinkDir, 'Symlink dir should be created');
+        $this->assertFileExists($this->symlinkDir . '/letudiant', 'Symlink package prefix dir should be created');
+        $this->assertTrue(is_link($this->symlinkDir . '/letudiant/foo-bar'), 'Symlink should be created');
         $this->assertFileExists($this->dependenciesDir, 'Dependencies dir should be created');
 
         // Install another time with already created directory
@@ -272,6 +274,83 @@ class SharedPackageInstallerTest extends TestCase
         ;
 
         $library->install($this->repository, $package);
+    }
+
+    /**
+     * @test
+     *
+     * @depends installDevelopment
+     */
+    public function installDevelopmentWithSymlinkBasePath()
+    {
+        $symlinkBasePath = realpath(sys_get_temp_dir()) . DIRECTORY_SEPARATOR . 'composer-test-symlink-base-path';
+
+        /** @var RootPackage|\PHPUnit_Framework_MockObject_MockObject $package */
+        $package = $this->getMock('Composer\Package\RootPackageInterface');
+        $package
+            ->expects($this->any())
+            ->method('getExtra')
+            ->willReturn(array(
+                SharedPackageInstaller::PACKAGE_TYPE => array(
+                    'vendor-dir'  => $this->dependenciesDir,
+                    'symlink-dir' => $this->symlinkDir,
+                    'symlink-base-path' => $symlinkBasePath
+                )
+            ))
+        ;
+        $this->composer->setPackage($package);
+
+        $library = new SharedPackageInstaller($this->io, $this->composer);
+        $package = $this->createDevelopmentPackageMock();
+
+        $library->install($this->repository, $package);
+
+        $this->assertFileExists($this->symlinkDir, 'Symlink dir should be created');
+        $this->assertFileExists($this->symlinkDir . '/letudiant', 'Symlink package prefix dir should be created');
+        $this->assertTrue(is_link($this->symlinkDir . '/letudiant/foo-bar'), 'Symlink should be created');
+
+        $this->assertEquals($symlinkBasePath . '/letudiant/foo-bar/dev-develop', readlink($this->symlinkDir . '/letudiant/foo-bar'), 'Symlink should have a custom base path');
+    }
+
+    /**
+     * @test
+     *
+     * @depends installDevelopment
+     */
+    public function installDevelopmentWithSymlinkBasePathAndTargetDir()
+    {
+        $symlinkBasePath = realpath(sys_get_temp_dir()) . DIRECTORY_SEPARATOR . 'composer-test-symlink-base-path';
+
+        /** @var RootPackage|\PHPUnit_Framework_MockObject_MockObject $rootPackage */
+        $rootPackage = $this->getMock('Composer\Package\RootPackageInterface');
+        $rootPackage
+            ->expects($this->any())
+            ->method('getExtra')
+            ->willReturn(array(
+                SharedPackageInstaller::PACKAGE_TYPE => array(
+                    'vendor-dir'  => $this->dependenciesDir,
+                    'symlink-dir' => $this->symlinkDir,
+                    'symlink-base-path' => $symlinkBasePath
+                )
+            ))
+        ;
+        $this->composer->setPackage($rootPackage);
+
+        $library = new SharedPackageInstaller($this->io, $this->composer);
+        $package = $this->createDevelopmentPackageMock();
+        $package
+            ->expects($this->exactly(4))
+            ->method('getTargetDir')
+            ->willReturn('target-dir')
+        ;
+
+        $library->install($this->repository, $package);
+
+        $this->assertFileExists($this->symlinkDir, 'Symlink dir should be created');
+        $this->assertFileExists($this->symlinkDir . '/letudiant', 'Symlink package prefix dir should be created');
+        $this->assertTrue(is_link($this->symlinkDir . '/letudiant/foo-bar'), 'Symlink should be created');
+
+        $this->assertEquals($symlinkBasePath . '/letudiant/foo-bar/dev-develop/target-dir', readlink($this->symlinkDir . '/letudiant/foo-bar'), 'Symlink should have a custom base path');
     }
 
     /**
@@ -610,11 +689,15 @@ class SharedPackageInstallerTest extends TestCase
         $package
             ->expects($this->once())
             ->method('getTargetDir')
-            ->will($this->returnValue('Some/Namespace'));
+            ->will($this->returnValue('Some/Namespace'))
+        ;
+
         $package
             ->expects($this->any())
             ->method('getPrettyName')
-            ->will($this->returnValue('foo/bar'));
+            ->will($this->returnValue('foo/bar'))
+        ;
+
         $this->assertEquals($this->vendorDir . '/' . $package->getPrettyName() . '/Some/Namespace', $library->getInstallPath($package));
     }
 
@@ -628,11 +711,15 @@ class SharedPackageInstallerTest extends TestCase
         $package
             ->expects($this->once())
             ->method('getTargetDir')
-            ->will($this->returnValue('Some/Namespace'));
+            ->will($this->returnValue('Some/Namespace'))
+        ;
+
         $package
             ->expects($this->any())
             ->method('getPrettyName')
-            ->will($this->returnValue('foo/bar'));
+            ->will($this->returnValue('foo/bar'))
+        ;
+
         $this->assertEquals($this->dependenciesDir . '/letudiant/foo-bar/dev-develop/Some/Namespace', $library->getInstallPath($package));
     }
 

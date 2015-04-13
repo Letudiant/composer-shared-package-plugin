@@ -113,6 +113,9 @@ class SharedPackageInstallerConfigTest extends \PHPUnit_Framework_TestCase
         ))->getOriginalVendorDir($nullable));
     }
 
+    /**
+     * @return array
+     */
     public function getOriginalVendorDirDataProvider()
     {
         return array(
@@ -125,6 +128,38 @@ class SharedPackageInstallerConfigTest extends \PHPUnit_Framework_TestCase
                 false
             )
         );
+    }
+
+    /**
+     * @test
+     */
+    public function getSymlinkBasePathWhenNull()
+    {
+        $this->assertNull($this->createInstallerConfig(array(
+            'vendor-dir'  => sys_get_temp_dir() . '/composer-test-dependencies-dir'
+        ))->getSymlinkBasePath());
+    }
+
+    /**
+     * @test
+     */
+    public function getSymlinkBasePathWhenNotNull()
+    {
+        $this->assertEquals('/foo/bar', $this->createInstallerConfig(array(
+            'vendor-dir'        => sys_get_temp_dir() . '/composer-test-dependencies-dir',
+            'symlink-base-path' => '/foo/bar'
+        ))->getSymlinkBasePath());
+    }
+
+    /**
+     * @test
+     */
+    public function getSymlinkBasePathWhenNotNullAndEndingSlash()
+    {
+        $this->assertEquals('/foo/bar', $this->createInstallerConfig(array(
+            'vendor-dir'        => sys_get_temp_dir() . '/composer-test-dependencies-dir',
+            'symlink-base-path' => '/foo/bar/'
+        ))->getSymlinkBasePath());
     }
 
     /**
