@@ -50,16 +50,16 @@ class SharedPackageInstallerConfig
 
         $baseDir = substr($originalAbsoluteVendorDir, 0, -strlen($this->originalVendorDir));
 
+        $this->setVendorDir($baseDir, $extraConfigs);
         $this->setSymlinkDirectory($baseDir, $extraConfigs);
         $this->setSymlinkBasePath($extraConfigs);
-        $this->setVendorDir($baseDir, $extraConfigs);
     }
 
     /**
-     * @param string     $baseDir
-     * @param null|array $extra
+     * @param string $baseDir
+     * @param array  $extra
      */
-    protected function setSymlinkDirectory($baseDir, $extra)
+    protected function setSymlinkDirectory($baseDir, array $extra)
     {
         $this->symlinkDir = $baseDir . 'vendor-shared';
 
@@ -74,7 +74,7 @@ class SharedPackageInstallerConfig
 
     /**
      * @param string     $baseDir
-     * @param null|array $extra
+     * @param array|null $extra
      *
      * @throws \InvalidArgumentException
      */
@@ -98,9 +98,9 @@ class SharedPackageInstallerConfig
      * This is useful for a Virtual Machine environment, where directories can be different
      * on the host machine and the guest machine.
      *
-     * @param array|null $extra
+     * @param array $extra
      */
-    protected function setSymlinkBasePath($extra)
+    protected function setSymlinkBasePath(array $extra)
     {
         if (isset($extra[SharedPackageInstaller::PACKAGE_TYPE]['symlink-base-path'])) {
             $this->symlinkBasePath = $extra[SharedPackageInstaller::PACKAGE_TYPE]['symlink-base-path'];
@@ -109,6 +109,13 @@ class SharedPackageInstallerConfig
             if ('/' === $this->symlinkBasePath[strlen($this->symlinkBasePath) - 1]) {
                 $this->symlinkBasePath = substr($this->symlinkBasePath, 0, -1);
             }
+        } elseif (0 < strpos($extra[SharedPackageInstaller::PACKAGE_TYPE]['vendor-dir'], '/')) {
+            $this->symlinkBasePath = $extra[SharedPackageInstaller::PACKAGE_TYPE]['vendor-dir'];
+        }
+
+        // Up to the project root directory
+        if (0 < strpos($this->symlinkBasePath, '/')) {
+            $this->symlinkBasePath = '../../' . $this->symlinkBasePath;
         }
     }
 
