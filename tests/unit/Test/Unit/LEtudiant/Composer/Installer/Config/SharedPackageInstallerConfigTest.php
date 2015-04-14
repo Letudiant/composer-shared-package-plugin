@@ -25,7 +25,7 @@ class SharedPackageInstallerConfigTest extends \PHPUnit_Framework_TestCase
      * @test
      *
      * @expectedException \InvalidArgumentException
-     * @expectedExceptionMessage The "vendor-dir" parameter for "shared-package" configuration should be provided in your composer.json (extra part)
+     * @expectedExceptionMessage The "vendor-dir" parameter for "shared-package" configuration should be provided in your project composer.json ("extra" key)
      */
     public function noVendorDirConfigured()
     {
