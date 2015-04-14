@@ -163,6 +163,27 @@ class SharedPackageInstallerConfigTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
+     * @test
+     */
+    public function getSymlinkBasePathWhenVendorDirIsRelative()
+    {
+        $this->assertEquals('../../../composer-test-dependencies-dir', $this->createInstallerConfig(array(
+            'vendor-dir' => '../composer-test-dependencies-dir'
+        ))->getSymlinkBasePath());
+    }
+
+    /**
+     * @test
+     */
+    public function getSymlinkBasePathWhenRelative()
+    {
+        $this->assertEquals('../../../composer-test-dependencies-dir', $this->createInstallerConfig(array(
+            'vendor-dir'        => sys_get_temp_dir() . '/composer-test-dependencies-dir',
+            'symlink-base-path' => '../composer-test-dependencies-dir'
+        ))->getSymlinkBasePath());
+    }
+
+    /**
      * @param array       $extra
      * @param string      $relativeDir
      * @param null|string $absoluteDir
