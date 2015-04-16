@@ -46,11 +46,11 @@ class SharedPackageInstaller extends LibraryInstaller
 
 
     /**
-     * @param IOInterface                 $io
-     * @param Composer                    $composer
-     * @param SymlinkFilesystem           $filesystem
-     * @param PackageDataManagerInterface $dataManager
-     * @param string                      $type
+     * @param IOInterface                      $io
+     * @param Composer                         $composer
+     * @param null|SymlinkFilesystem           $filesystem
+     * @param null|PackageDataManagerInterface $dataManager
+     * @param string                           $type
      */
     public function __construct(
         IOInterface $io,
