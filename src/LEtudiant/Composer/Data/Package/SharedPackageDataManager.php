@@ -60,7 +60,7 @@ class SharedPackageDataManager implements PackageDataManagerInterface
     {
         $packageKey = $package->getPrettyName() . '/' . $package->getPrettyVersion();
 
-        // Remove the line if there is no data anymore
+        // Remove the row if there is no data anymore
         if (!isset($packageData[0])) {
             if (isset($this->packagesData[$packageKey])) {
                 unset($this->packagesData[$packageKey]);

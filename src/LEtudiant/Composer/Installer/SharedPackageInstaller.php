@@ -46,7 +46,11 @@ class SharedPackageInstaller extends LibraryInstaller
 
 
     /**
-     * @inheritdoc
+     * @param IOInterface                 $io
+     * @param Composer                    $composer
+     * @param SymlinkFilesystem           $filesystem
+     * @param PackageDataManagerInterface $dataManager
+     * @param string                      $type
      */
     public function __construct(
         IOInterface $io,
@@ -150,7 +154,21 @@ class SharedPackageInstaller extends LibraryInstaller
     }
 
     /**
-     * @inheritdoc
+     * Behaviors :
+     *
+     * New (version replacement, Stable to Dev or Dev to Stable) :
+     *  - Stable : > vendor directory
+     *  - Dev : > shared dependencies directory
+     *
+     * Update (if package name & target directory are the same) :
+     *  - Stable : checkout new sources
+     *  - Dev : checkout new sources
+     *
+     * In case of replacement (see "New" part above) :
+     *  - The old package is completely deleted ("composer remove" process) before installing the new version
+     *
+     *
+     * {@inheritdoc}
      */
     public function update(InstalledRepositoryInterface $repo, PackageInterface $initial, PackageInterface $target)
     {

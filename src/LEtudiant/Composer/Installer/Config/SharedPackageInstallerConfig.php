@@ -15,6 +15,8 @@ use LEtudiant\Composer\Installer\SharedPackageInstaller;
 
 /**
  * @author Sylvain Lorinet <sylvain.lorinet@gmail.com>
+ *
+ * @see https://github.com/Letudiant/composer-shared-package-plugin/blob/master/docs/all-available-configurations.md
  */
 class SharedPackageInstallerConfig
 {
