@@ -20,6 +20,7 @@ A stable package (tagged version) won't be shared, because you should'nt modify 
  * [Work with Satis : increase the Composer speed](./docs/how-to-use/work-with-satis.md)
 * [All available configurations](#all-available-configurations)
 * [Reporting an issue or a feature request](#reporting-an-issue-or-a-feature-request)
+* [ChangeLog](#changelog)
 * [Credit](#credit)
 * [License](#license)
 
@@ -59,13 +60,16 @@ Add, to your root project `composer.json`, this extra configuration :
 {
     "extra": {
         "shared-package": {
-            "vendor-dir": "path/to/your/dependencies/directory"
+            "vendor-dir": "/path/to/your/dependencies/directory"
         }
     }
 }
 ```
 
-Note: you can pass a relative path  (`foo/bar`) or absolute path (starts with "/" : `/foo/bar`).
+**Note:** you can pass a relative path  (`foo/bar`) or absolute path (starts with "/" : `/foo/bar`).  
+If your path is relative, your symlink directory base path will be relative too.
+
+**Note for VM users:** you can manually override the symlink directory base path with the configuration `symlink-base-path` if your host machine dependencies directory path is not the same as your guest machine, see [all available configurations](./docs/all-available-configurations.md) page for more information.
 
 ### Step 3 : type your package
 
@@ -149,7 +153,7 @@ With this `composer.json`, the structure will look like :
 |           +-- ...
 |-- vendor-shared/
 |   +-- acme/
-|       +-- foo-bar/ (symlink to "../dependencies/acme/foo-bar/dev-develop/")
+|       +-- foo-bar/ (symlink to "../../../dependencies/acme/foo-bar/dev-develop/")
 +-- ...
 ```
 
@@ -169,6 +173,12 @@ See the [all available configurations documentation](./docs/all-available-config
 ## Reporting an issue or a feature request
 
 Feel free to open an issue, fork this project or suggest an awesome new feature in [the issue tracker](https://github.com/Letudiant/composer-shared-package-plugin/issues).
+
+## ChangeLog
+
+### 1.1.0 :
+
+* Implement new `symlink-base-path` configuration, as suggested by [philbates35](https://github.com/philbates35), to allow VM users to override the symlink directory base path, see [issue](https://github.com/Letudiant/composer-shared-package-plugin/issues/1) - [More information](./docs/all-available-configurations.md).
 
 ## Credit
 
