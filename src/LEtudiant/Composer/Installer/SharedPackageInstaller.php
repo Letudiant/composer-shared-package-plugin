@@ -12,6 +12,7 @@
 namespace LEtudiant\Composer\Installer;
 
 use Composer\Composer;
+use Composer\Config;
 use Composer\Downloader\FilesystemException;
 use Composer\Installer\LibraryInstaller;
 use Composer\IO\IOInterface;
@@ -65,13 +66,7 @@ class SharedPackageInstaller extends LibraryInstaller
         parent::__construct($io, $composer, $type, $this->filesystem);
 
         $this->setDataManager($dataManager);
-
-        $config = $this->composer->getConfig();
-        $this->config = new SharedPackageInstallerConfig(
-            $config->get('vendor-dir'),
-            $config->get('vendor-dir', 1),
-            $this->composer->getPackage()->getExtra()
-        );
+        $this->setConfig($this->composer->getConfig());
 
         $this->vendorDir = $this->config->getVendorDir();
         $this->packageDataManager->setVendorDir($this->vendorDir);
@@ -334,6 +329,18 @@ class SharedPackageInstaller extends LibraryInstaller
         }
 
         $this->packageDataManager = $dataManager;
+    }
+
+    /**
+     * @param Config $config
+     */
+    protected function setConfig(Config $config)
+    {
+        $this->config = new SharedPackageInstallerConfig(
+            $config->get('vendor-dir'),
+            $config->get('vendor-dir', 1),
+            $this->composer->getPackage()->getExtra()
+        );
     }
 
     /**
