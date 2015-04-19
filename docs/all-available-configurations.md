@@ -18,7 +18,7 @@ All these configuration should set in the `extra` `shared-package`configuration 
         "shared-package": {
             "vendor-dir": "/var/projects/composer-dependencies",
             "symlink-dir": "symlinks-folder",
-            "symlink-base-path": "/home/www/projects/composer-dependencies,
+            "symlink-base-path": "/home/www/projects/composer-dependencies",
             "symlink-enabled": true
         }
     }
