@@ -85,6 +85,8 @@ class SharedPackageInstallerTest extends TestCase
      */
     protected function setUp()
     {
+        parent::setUp();
+
         $this->fs = new SymlinkFilesystem();
         $this->composer = new Composer();
         $this->config = new Config();
@@ -95,10 +97,9 @@ class SharedPackageInstallerTest extends TestCase
         $this->ensureDirectoryExistsAndClear($this->vendorDir);
         $this->binDir = realpath(sys_get_temp_dir()).DIRECTORY_SEPARATOR.'composer-test-bin';
         $this->ensureDirectoryExistsAndClear($this->binDir);
-        $this->symlinkDir = realpath(sys_get_temp_dir()) . DIRECTORY_SEPARATOR . 'composer-test-vendor-shared';
-        $this->ensureDirectoryExistsAndClear($this->symlinkDir);
         $this->dependenciesDir = realpath(sys_get_temp_dir()) . DIRECTORY_SEPARATOR . 'composer-test-dependencies';
         $this->ensureDirectoryExistsAndClear($this->dependenciesDir);
+        $this->symlinkDir = realpath(sys_get_temp_dir()) . DIRECTORY_SEPARATOR . 'composer-test-vendor-shared';
 
         $this->config->merge(array(
             'config' => array(
@@ -139,6 +140,8 @@ class SharedPackageInstallerTest extends TestCase
         $this->fs->removeDirectory($this->binDir);
         $this->fs->removeDirectory($this->symlinkDir);
         $this->fs->removeDirectory($this->dependenciesDir);
+
+        parent::tearDown();
     }
 
     /**
@@ -356,6 +359,36 @@ class SharedPackageInstallerTest extends TestCase
     /**
      * @test
      *
+     * @depends installDevelopment
+     */
+    public function installDevelopmentAndSymlinkDisabled()
+    {
+        /** @var RootPackage|\PHPUnit_Framework_MockObject_MockObject $rootPackage */
+        $rootPackage = $this->getMock('Composer\Package\RootPackageInterface');
+        $rootPackage
+            ->expects($this->any())
+            ->method('getExtra')
+            ->willReturn(array(
+                SharedPackageInstaller::PACKAGE_TYPE => array(
+                    'vendor-dir'      => $this->dependenciesDir,
+                    'symlink-dir'     => $this->symlinkDir,
+                    'symlink-enabled' => false
+                )
+            ))
+        ;
+        $this->composer->setPackage($rootPackage);
+
+        $library = new SharedPackageInstaller($this->io, $this->composer);
+        $package = $this->createDevelopmentPackageMock();
+
+        $library->install($this->repository, $package);
+
+        $this->assertFileNotExists($this->symlinkDir, 'Symlink dir should be created');
+    }
+
+    /**
+     * @test
+     *
      * @depends testInstallerCreationShouldNotCreateVendorDirectory
      * @depends testInstallerCreationShouldNotCreateBinDirectory
      */
@@ -537,7 +570,7 @@ class SharedPackageInstallerTest extends TestCase
         $this->assertFileExists($this->vendorDir, 'Vendor dir should be created');
         $this->assertFileExists($this->binDir, 'Bin dir should be created');
         $this->assertFileExists($this->dependenciesDir, 'Dependencies dir should be created');
-        $this->assertFileExists($this->symlinkDir, 'Symlink dir should be created');
+        $this->assertFileNotExists($this->symlinkDir, 'Symlink dir should be created');
 
         $this->assertFalse(is_link($this->symlinkDir . '/letudiant/foo-bar'));
     }

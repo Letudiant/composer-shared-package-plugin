@@ -184,6 +184,41 @@ class SharedPackageInstallerConfigTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
+     * @test
+     */
+    public function isSymlinkEnabledDefaultValue()
+    {
+        $this->assertTrue($this->createInstallerConfig(array(
+            'vendor-dir' => sys_get_temp_dir() . '/composer-test-dependencies-dir',
+        ))->isSymlinkEnabled());
+    }
+
+    /**
+     * @test
+     */
+    public function setIsSymlinkEnabled()
+    {
+        $this->assertFalse($this->createInstallerConfig(array(
+            'vendor-dir'      => sys_get_temp_dir() . '/composer-test-dependencies-dir',
+            'symlink-enabled' => false
+        ))->isSymlinkEnabled());
+    }
+
+    /**
+     * @test
+     *
+     * @expectedException \InvalidArgumentException
+     * @expectedExceptionMessage The configuration "symlink-enabled" should be a boolean
+     */
+    public function setIsSymlinkEnabledWithString()
+    {
+        $this->assertTrue($this->createInstallerConfig(array(
+            'vendor-dir'      => sys_get_temp_dir() . '/composer-test-dependencies-dir',
+            'symlink-enabled' => 'foo'
+        ))->isSymlinkEnabled());
+    }
+
+    /**
      * @param array       $extra
      * @param string      $relativeDir
      * @param null|string $absoluteDir
