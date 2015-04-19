@@ -257,9 +257,10 @@ class SharedPackageInstaller extends LibraryInstaller
      */
     protected function createPackageVendorSymlink(PackageInterface $package)
     {
-        if ($this->filesystem->ensureSymlinkExists(
-            $this->getSymlinkSourcePath($package),
-            $this->getPackageVendorSymlink($package))
+        if ($this->config->isSymlinkEnabled() && $this->filesystem->ensureSymlinkExists(
+                $this->getSymlinkSourcePath($package),
+                $this->getPackageVendorSymlink($package)
+            )
         ) {
             $this->io->write(array(
                 '  - Creating symlink for <info>' . $package->getPrettyName()

@@ -40,6 +40,11 @@ class SharedPackageInstallerConfig
      */
     protected $symlinkBasePath;
 
+    /**
+     * @var bool
+     */
+    protected $isSymlinkEnabled = true;
+
 
     /**
      * @param string     $originalRelativeVendorDir
@@ -62,6 +67,7 @@ class SharedPackageInstallerConfig
         $this->setVendorDir($baseDir, $extraConfigs);
         $this->setSymlinkDirectory($baseDir, $extraConfigs);
         $this->setSymlinkBasePath($extraConfigs);
+        $this->setIsSymlinkEnabled($extraConfigs);
     }
 
     /**
@@ -119,6 +125,31 @@ class SharedPackageInstallerConfig
         if (0 < strpos($this->symlinkBasePath, '/')) {
             $this->symlinkBasePath = '../../' . $this->symlinkBasePath;
         }
+    }
+
+    /**
+     * The symlink directory creation process can be disabled.
+     * This may mean that you work directly with the sources directory so the symlink directory is useless.
+     *
+     * @param array $extra
+     */
+    protected function setIsSymlinkEnabled(array $extra)
+    {
+        if (isset($extra[SharedPackageInstaller::PACKAGE_TYPE]['symlink-enabled'])) {
+            if (!is_bool($extra[SharedPackageInstaller::PACKAGE_TYPE]['symlink-enabled'])) {
+                throw new \InvalidArgumentException('The configuration "symlink-enabled" should be a boolean');
+            }
+
+            $this->isSymlinkEnabled = $extra[SharedPackageInstaller::PACKAGE_TYPE]['symlink-enabled'];
+        }
+    }
+
+    /**
+     * @return bool
+     */
+    public function isSymlinkEnabled()
+    {
+        return $this->isSymlinkEnabled;
     }
 
     /**

@@ -41,7 +41,7 @@ class SharedPackageDataManager implements PackageDataManagerInterface
      */
     public function __construct(Composer $composer)
     {
-        $this->composer  = $composer;
+        $this->composer = $composer;
     }
 
     /**
