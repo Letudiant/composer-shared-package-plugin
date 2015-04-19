@@ -295,7 +295,10 @@ class SharedPackageInstaller extends LibraryInstaller
      */
     protected function removePackageVendorSymlink(PackageInterface $package)
     {
-        if ($this->filesystem->removeSymlink($this->getPackageVendorSymlink($package))) {
+        if (
+            $this->config->isSymlinkEnabled()
+            && $this->filesystem->removeSymlink($this->getPackageVendorSymlink($package))
+        ) {
             $this->io->write(array(
                 '  - Deleting symlink for <info>' . $package->getPrettyName() . '</info> '
                 . '(<fg=yellow>' . $package->getPrettyVersion() . '</fg=yellow>)',
