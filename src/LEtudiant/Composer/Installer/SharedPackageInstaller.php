@@ -13,6 +13,8 @@ namespace LEtudiant\Composer\Installer;
 
 use Composer\Composer;
 use Composer\Config;
+use Composer\DependencyResolver\Operation\InstallOperation;
+use Composer\DependencyResolver\Operation\UninstallOperation;
 use Composer\Downloader\FilesystemException;
 use Composer\Installer\LibraryInstaller;
 use Composer\IO\IOInterface;
@@ -158,10 +160,10 @@ class SharedPackageInstaller extends LibraryInstaller
             parent::update($repo, $initial, $target);
         } else {
             // If the initial package sources folder exists, uninstall it
-            $this->uninstall($repo, $initial);
+            $this->composer->getInstallationManager()->uninstall($repo, new UninstallOperation($initial));
 
             // Install the target package
-            $this->install($repo, $target);
+            $this->composer->getInstallationManager()->install($repo, new InstallOperation($target));
         }
     }
 
