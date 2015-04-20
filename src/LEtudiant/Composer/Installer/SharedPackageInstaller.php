@@ -49,26 +49,24 @@ class SharedPackageInstaller extends LibraryInstaller
     /**
      * @param IOInterface                      $io
      * @param Composer                         $composer
-     * @param null|SymlinkFilesystem           $filesystem
+     * @param SymlinkFilesystem                $filesystem
      * @param null|PackageDataManagerInterface $dataManager
-     * @param string                           $type
      */
     public function __construct(
         IOInterface $io,
         Composer $composer,
-        SymlinkFilesystem $filesystem = null,
-        PackageDataManagerInterface $dataManager = null,
-        $type = 'library'
+        SymlinkFilesystem $filesystem,
+        PackageDataManagerInterface $dataManager
     )
     {
-        $this->setFilesystem($filesystem);
+        $this->filesystem = $filesystem;
 
-        parent::__construct($io, $composer, $type, $this->filesystem);
+        parent::__construct($io, $composer, 'library', $this->filesystem);
 
-        $this->setDataManager($dataManager);
         $this->setConfig($this->composer->getConfig());
 
         $this->vendorDir = $this->config->getVendorDir();
+        $this->packageDataManager = new SharedPackageDataManager($composer);
         $this->packageDataManager->setVendorDir($this->vendorDir);
     }
 
@@ -77,15 +75,8 @@ class SharedPackageInstaller extends LibraryInstaller
      *
      * @return string
      */
-    protected function getPackageBasePath(PackageInterface $package)
+    public function getPackageBasePath(PackageInterface $package)
     {
-        // For stable version (tag), let it in the normal vendor directory, as a folder (not symlink)
-        if (!$package->isDev()) {
-            $this->filesystem->ensureDirectoryExists($this->config->getOriginalVendorDir());
-
-            return $this->config->getOriginalVendorDir(true) . $package->getPrettyName();
-        }
-
         $this->filesystem->ensureDirectoryExists($this->vendorDir);
 
         return
@@ -111,12 +102,6 @@ class SharedPackageInstaller extends LibraryInstaller
      */
     public function install(InstalledRepositoryInterface $repo, PackageInterface $package)
     {
-        if (!$package->isDev()) {
-            parent::install($repo, $package);
-
-            return;
-        }
-
         if (!is_readable($this->getInstallPath($package))) {
             parent::install($repo, $package);
         } elseif (!$repo->hasPackage($package)) {
@@ -136,16 +121,12 @@ class SharedPackageInstaller extends LibraryInstaller
      */
     public function isInstalled(InstalledRepositoryInterface $repo, PackageInterface $package)
     {
-        // In the case of symlink, just check if the sources folder and the link exist
-        if ($package->isDev()) {
-            return
-                $repo->hasPackage($package)
-                && is_readable($this->getInstallPath($package))
-                && is_link($this->getPackageVendorSymlink($package))
-            ;
-        }
-
-        return parent::isInstalled($repo, $package);
+        // Just check if the sources folder and the link exist
+        return
+            $repo->hasPackage($package)
+            && is_readable($this->getInstallPath($package))
+            && is_link($this->getPackageVendorSymlink($package))
+        ;
     }
 
     /**
@@ -167,17 +148,6 @@ class SharedPackageInstaller extends LibraryInstaller
      */
     public function update(InstalledRepositoryInterface $repo, PackageInterface $initial, PackageInterface $target)
     {
-        // If both packages are stable version (tag)
-        if (!$target->isDev() && !$initial->isDev()) {
-            parent::update($repo, $initial, $target);
-
-            return;
-        }
-
-        if (!$repo->hasPackage($initial)) {
-            throw new \InvalidArgumentException('Package is not installed : ' . $initial->getPrettyName());
-        }
-
         $this->packageDataManager->setPackageInstallationSource($initial);
         $this->packageDataManager->setPackageInstallationSource($target);
 
@@ -203,16 +173,6 @@ class SharedPackageInstaller extends LibraryInstaller
      */
     public function uninstall(InstalledRepositoryInterface $repo, PackageInterface $package)
     {
-        if (!$package->isDev()) {
-            parent::uninstall($repo, $package);
-
-            return;
-        }
-
-        if (!$repo->hasPackage($package)) {
-            throw new \InvalidArgumentException('Package is not installed : ' . $package->getPrettyName());
-        }
-
         if ($this->isSourceDirUnused($package) && $this->io->askConfirmation(
                 "The package version <info>" . $package->getPrettyName() . "</info> "
                 . "(<fg=yellow>" . $package->getPrettyVersion() . "</fg=yellow>) seems to be unused."
@@ -308,30 +268,6 @@ class SharedPackageInstaller extends LibraryInstaller
             $symlinkParentDirectory = dirname($this->getPackageVendorSymlink($package));
             $this->filesystem->removeEmptyDirectory($symlinkParentDirectory);
         }
-    }
-
-    /**
-     * @param null|SymlinkFilesystem $filesystem
-     */
-    protected function setFilesystem(SymlinkFilesystem $filesystem = null)
-    {
-        if (null == $filesystem) {
-            $filesystem = new SymlinkFilesystem();
-        }
-
-        $this->filesystem = $filesystem;
-    }
-
-    /**
-     * @param null|PackageDataManagerInterface $dataManager
-     */
-    protected function setDataManager(PackageDataManagerInterface $dataManager = null)
-    {
-        if (null == $dataManager) {
-            $dataManager = new SharedPackageDataManager($this->composer);
-        }
-
-        $this->packageDataManager = $dataManager;
     }
 
     /**

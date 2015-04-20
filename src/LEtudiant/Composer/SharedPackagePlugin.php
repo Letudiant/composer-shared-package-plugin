@@ -12,9 +12,12 @@
 namespace LEtudiant\Composer;
 
 use Composer\Composer;
+use Composer\Installer\LibraryInstaller;
 use Composer\IO\IOInterface;
 use Composer\Plugin\PluginInterface;
 use LEtudiant\Composer\Installer\SharedPackageInstaller;
+use LEtudiant\Composer\Installer\Solver\SharedPackageInstallerSolver;
+use LEtudiant\Composer\Util\SymlinkFilesystem;
 
 /**
  * @author Sylvain Lorinet <sylvain.lorinet@gmail.com>
@@ -27,7 +30,10 @@ class SharedPackagePlugin implements PluginInterface
      */
     public function activate(Composer $composer, IOInterface $io)
     {
-        $installer = new SharedPackageInstaller($io, $composer);
+        $installer = new SharedPackageInstallerSolver(
+            new SharedPackageInstaller($io, $composer, new SymlinkFilesystem()),
+            new LibraryInstaller($io, $composer)
+        );
         $composer->getInstallationManager()->addInstaller($installer);
     }
 }
