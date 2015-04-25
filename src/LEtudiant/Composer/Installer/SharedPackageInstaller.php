@@ -68,7 +68,7 @@ class SharedPackageInstaller extends LibraryInstaller
         $this->setConfig($this->composer->getConfig());
 
         $this->vendorDir = $this->config->getVendorDir();
-        $this->packageDataManager = new SharedPackageDataManager($composer);
+        $this->packageDataManager = $dataManager;
         $this->packageDataManager->setVendorDir($this->vendorDir);
     }
 
@@ -248,7 +248,6 @@ class SharedPackageInstaller extends LibraryInstaller
 
         return $sourcePath;
     }
-
 
     /**
      * @param PackageInterface $package

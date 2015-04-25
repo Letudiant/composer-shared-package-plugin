@@ -221,6 +221,12 @@ class SharedPackageInstallerTest extends TestCase
             ->with($package)
         ;
 
+        $this->dataManager
+            ->expects($this->exactly(2))
+            ->method('addPackageUsage')
+            ->willReturn($package)
+        ;
+
         $library->install($this->repository, $package);
 
         $this->assertFileExists($this->vendorDir, 'Vendor dir should be created');
@@ -404,12 +410,20 @@ class SharedPackageInstallerTest extends TestCase
         $this->dm
             ->expects($this->once())
             ->method('download')
-            ->with($target, $this->dependenciesDir . '/letudiant/foo-bar/dev-develop/newtarget');
+            ->with($target, $this->dependenciesDir . '/letudiant/foo-bar/dev-develop/newtarget')
+        ;
 
         $this->repository
             ->expects($this->exactly(3))
             ->method('hasPackage')
-            ->will($this->onConsecutiveCalls(true, true, false, false));
+            ->will($this->onConsecutiveCalls(true, true, false, false))
+        ;
+
+        $this->dataManager
+            ->expects($this->once())
+            ->method('addPackageUsage')
+            ->willReturn($target)
+        ;
 
         $installer->update($this->repository, $initial, $target);
 
@@ -438,16 +452,29 @@ class SharedPackageInstallerTest extends TestCase
         $initial
             ->expects($this->any())
             ->method('getPrettyName')
-            ->will($this->returnValue('initial-package'));
+            ->will($this->returnValue('initial-package'))
+        ;
 
         $this->dm
             ->expects($this->never())
-            ->method('download');
+            ->method('download')
+        ;
 
         $this->repository
             ->expects($this->exactly(2))
             ->method('hasPackage')
-            ->will($this->onConsecutiveCalls(true, true, false));
+            ->will($this->onConsecutiveCalls(true, true, false))
+        ;
+
+        $this->dataManager
+            ->expects($this->never())
+            ->method('addPackageUsage')
+        ;
+
+        $this->dataManager
+            ->expects($this->never())
+            ->method('removePackageUsage')
+        ;
 
         $installer->update($this->repository, $initial, $target);
 
@@ -467,18 +494,23 @@ class SharedPackageInstallerTest extends TestCase
      */
     public function updateDevelopmentToStable()
     {
+        $initial = $this->createDevelopmentPackageMock();
+        $target  = $this->createStablePackageMock();
+
         $installer = new SharedPackageInstaller($this->io, $this->composer, $this->fs, $this->dataManager);
         $defaultInstaller = $this->getMockBuilder('Composer\Installer\LibraryInstaller')
             ->disableOriginalConstructor()
             ->getMock()
         ;
 
+        $defaultInstaller
+            ->expects($this->once())
+            ->method('install')
+        ;
+
         $im = new InstallationManager();
         $im->addInstaller(new SharedPackageInstallerSolver($installer, $defaultInstaller));
         $this->composer->setInstallationManager($im);
-
-        $initial = $this->createDevelopmentPackageMock();
-        $target  = $this->createStablePackageMock();
 
         $initial
             ->expects($this->any())
@@ -510,7 +542,8 @@ class SharedPackageInstallerTest extends TestCase
         $this->repository
             ->expects($this->exactly(1))
             ->method('hasPackage')
-            ->will($this->onConsecutiveCalls(true, true, false, false));
+            ->will($this->onConsecutiveCalls(true, true, false, false))
+        ;
 
         $installer->update($this->repository, $initial, $target);
 
@@ -547,17 +580,26 @@ class SharedPackageInstallerTest extends TestCase
             ->expects($this->exactly(1))
             ->method('hasPackage')
             ->with($package)
-            ->will($this->onConsecutiveCalls(true, true));
+            ->will($this->onConsecutiveCalls(true, true))
+        ;
 
         $this->repository
             ->expects($this->once())
             ->method('removePackage')
-            ->with($package);
+            ->with($package)
+        ;
 
         $this->dm
             ->expects($this->once())
             ->method('remove')
-            ->with($package, $this->dependenciesDir . '/letudiant/foo-bar/dev-develop');
+            ->with($package, $this->dependenciesDir . '/letudiant/foo-bar/dev-develop')
+        ;
+
+        $this->dataManager
+            ->expects($this->once())
+            ->method('removePackageUsage')
+            ->with($package)
+        ;
 
         $library->uninstall($this->repository, $package);
     }
