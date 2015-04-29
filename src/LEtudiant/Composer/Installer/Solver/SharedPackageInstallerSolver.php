@@ -60,7 +60,7 @@ class SharedPackageInstallerSolver implements InstallerInterface
      */
     public function getInstallPath(PackageInterface $package)
     {
-        return $this->symlinkInstaller->getInstallPath($package);
+        // Nothing here
     }
 
     /**
@@ -69,10 +69,10 @@ class SharedPackageInstallerSolver implements InstallerInterface
      */
     public function install(InstalledRepositoryInterface $repo, PackageInterface $package)
     {
-        if (!$package->isDev()) {
-            $this->defaultInstaller->install($repo, $package);
-        } else {
+        if ($package->isDev()) {
             $this->symlinkInstaller->install($repo, $package);
+        } else {
+            $this->defaultInstaller->install($repo, $package);
         }
     }
 
@@ -114,7 +114,6 @@ class SharedPackageInstallerSolver implements InstallerInterface
         if (!$target->isDev() && !$initial->isDev()) {
             $this->defaultInstaller->update($repo, $initial, $target);
         } else {
-
             if (!$repo->hasPackage($initial)) {
                 throw new \InvalidArgumentException('Package is not installed : ' . $initial->getPrettyName());
             }
