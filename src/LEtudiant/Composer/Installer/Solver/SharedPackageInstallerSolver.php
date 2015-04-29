@@ -56,7 +56,7 @@ class SharedPackageInstallerSolver implements InstallerInterface
      *
      * @param  PackageInterface $package
      *
-     * @return string           path
+     * @return void
      */
     public function getInstallPath(PackageInterface $package)
     {
