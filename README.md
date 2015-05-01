@@ -176,6 +176,11 @@ Feel free to open an issue, fork this project or suggest an awesome new feature 
 
 ## ChangeLog
 
+### 1.2.0 :
+
+* Rewrite installer, the installer choice process is now in a dedicated class.
+* Implement new `symlink-enable` configuration to allow to enable/disable the symlink creation process  - [More information](./docs/all-available-configurations.md).
+
 ### 1.1.0 :
 
 * Implement new `symlink-base-path` configuration, as suggested by [philbates35](https://github.com/philbates35), to allow VM users to override the symlink directory base path, see [issue](https://github.com/Letudiant/composer-shared-package-plugin/issues/1) - [More information](./docs/all-available-configurations.md).
