@@ -87,6 +87,29 @@ class SharedPackageInstallerSolverDevelopmentTest extends SharedPackageInstaller
     /**
      * @test
      */
+    public function uninstall()
+    {
+        $package = $this->createPackageMock();
+
+        $this->installer
+            ->expects($this->once())
+            ->method('uninstall')
+            ->with($this->repository, $package)
+        ;
+
+        $this->repository
+            ->expects($this->once())
+            ->method('hasPackage')
+            ->with($package)
+            ->willReturn(true)
+        ;
+
+        $this->createSolver()->uninstall($this->repository, $package);
+    }
+
+    /**
+     * @test
+     */
     public function update()
     {
         $initial = $this->createPackageMock();

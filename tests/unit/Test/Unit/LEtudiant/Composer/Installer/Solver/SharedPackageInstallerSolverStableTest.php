@@ -119,13 +119,6 @@ class SharedPackageInstallerSolverStableTest extends \PHPUnit_Framework_TestCase
             ->with($this->repository, $package)
         ;
 
-        $this->repository
-            ->expects($this->once())
-            ->method('hasPackage')
-            ->with($package)
-            ->willReturn(true)
-        ;
-
         $this->createSolver()->uninstall($this->repository, $package);
     }
 

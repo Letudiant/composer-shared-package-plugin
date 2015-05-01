@@ -414,7 +414,7 @@ class SharedPackageInstallerTest extends TestCase
         ;
 
         $this->repository
-            ->expects($this->exactly(3))
+            ->expects($this->exactly(2))
             ->method('hasPackage')
             ->will($this->onConsecutiveCalls(true, true, false, false))
         ;
