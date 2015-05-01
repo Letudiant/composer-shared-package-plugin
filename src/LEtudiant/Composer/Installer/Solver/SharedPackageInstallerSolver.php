@@ -130,15 +130,15 @@ class SharedPackageInstallerSolver implements InstallerInterface
      */
     public function uninstall(InstalledRepositoryInterface $repo, PackageInterface $package)
     {
-        if (!$package->isDev()) {
+        if ($package->isDev()) {
+            if (!$repo->hasPackage($package)) {
+                throw new \InvalidArgumentException('Package is not installed : ' . $package->getPrettyName());
+            }
+
+            $this->symlinkInstaller->uninstall($repo, $package);
+        } else {
             $this->defaultInstaller->uninstall($repo, $package);
         }
-
-        if (!$repo->hasPackage($package)) {
-            throw new \InvalidArgumentException('Package is not installed : ' . $package->getPrettyName());
-        }
-
-        $this->symlinkInstaller->uninstall($repo, $package);
     }
 
     /**
