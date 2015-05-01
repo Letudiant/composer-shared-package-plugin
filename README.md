@@ -179,7 +179,7 @@ Feel free to open an issue, fork this project or suggest an awesome new feature 
 ### 1.2.0 :
 
 * Rewrite installer, the installer choice process is now in a dedicated class.
-* Implement new `symlink-enable` configuration to allow to enable/disable the symlink creation process  - [More information](./docs/all-available-configurations.md).
+* Implement new `symlink-enabled` configuration to allow to enable/disable the symlink creation process  - [More information](./docs/all-available-configurations.md).
 
 ### 1.1.0 :
 
