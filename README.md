@@ -41,7 +41,7 @@ Add, to your root project `composer.json`, this require :
 // composer.json (project)
 {
     "require": {
-        "letudiant/composer-shared-package-plugin": "~1.0"
+        "letudiant/composer-shared-package-plugin": "~1.2"
         
         // ...
     }
@@ -108,7 +108,7 @@ You can avoid to have two project `composer.json` by setting your `require` depe
 Thanks to that, you will be able to work with development version in dev environement and have stable version in production.
 
 **Note:** the alias `* as 1.0` may avoid a Composer version solver error, because this behavior is not handled by default.  
-**Note²:** Composer has not been created to work with development version/branch, so when you run a `composer install`, the current package branch `HEAD` commit will flagged in your `composer.lock`.  
+**NoteÂ²:** Composer has not been created to work with development version/branch, so when you run a `composer install`, the current package branch `HEAD` commit will flagged in your `composer.lock`.  
 So, the next time you'll run this command on dev environement, and if you already have a `composer.lock` file, Composer will checkout the flagged commit and not the new `HEAD` *(if you made new commit)* of your branch : **your shared packages won't be up to date**. To avoid this behavior, please read "[How to use - Update only your own packages](./docs/how-to-use/update-only-your-own-packages.md)".
 
 ## Structure generation example
@@ -187,7 +187,7 @@ Feel free to open an issue, fork this project or suggest an awesome new feature 
 
 ## Credit
 
-![L'Étudiant](http://www.letudiant.fr/etucmsEtuPlugin/images/header/logo.png)
+![L'Ã‰tudiant](http://www.letudiant.fr/etucmsEtuPlugin/images/header/logo.png)
 
 This plugin project is maintained by **[L'Etudiant](https://github.com/Letudiant)**.  
 The Composer project is maintained by Nils Adermann & Jordi Boggiano, see https://github.com/composer/composer#authors for more information.
