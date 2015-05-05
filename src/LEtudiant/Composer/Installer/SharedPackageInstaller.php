@@ -21,7 +21,6 @@ use Composer\IO\IOInterface;
 use Composer\Package\PackageInterface;
 use Composer\Repository\InstalledRepositoryInterface;
 use LEtudiant\Composer\Data\Package\PackageDataManagerInterface;
-use LEtudiant\Composer\Data\Package\SharedPackageDataManager;
 use LEtudiant\Composer\Installer\Config\SharedPackageInstallerConfig;
 use LEtudiant\Composer\Util\SymlinkFilesystem;
 

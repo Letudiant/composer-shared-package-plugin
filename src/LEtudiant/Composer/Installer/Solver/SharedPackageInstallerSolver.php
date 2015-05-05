@@ -56,11 +56,15 @@ class SharedPackageInstallerSolver implements InstallerInterface
      *
      * @param  PackageInterface $package
      *
-     * @return void
+     * @return string
      */
     public function getInstallPath(PackageInterface $package)
     {
-        // Nothing here
+        if ($package->isDev()) {
+            return $this->symlinkInstaller->getInstallPath($package);
+        }
+
+        return $this->defaultInstaller->getInstallPath($package);
     }
 
     /**
