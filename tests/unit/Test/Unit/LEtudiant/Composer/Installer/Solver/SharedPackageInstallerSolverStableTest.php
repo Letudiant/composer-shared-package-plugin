@@ -44,7 +44,8 @@ class SharedPackageInstallerSolverStableTest extends \PHPUnit_Framework_TestCase
 
         $this->installer = $this->getMockBuilder('\Composer\Installer\LibraryInstaller')
             ->disableOriginalConstructor()
-        ->getMock();
+            ->getMock()
+        ;
 
         $this->repository = $this->getMock('\Composer\Repository\InstalledRepositoryInterface');
     }
@@ -54,7 +55,15 @@ class SharedPackageInstallerSolverStableTest extends \PHPUnit_Framework_TestCase
      */
     public function getInstallPath()
     {
-        $this->assertNull($this->createSolver()->getInstallPath($this->createPackageMock()));
+        $package = $this->createPackageMock();
+
+        $this->installer
+            ->expects($this->once())
+            ->method('getInstallPath')
+            ->with($package)
+        ;
+
+        $this->createSolver()->getInstallPath($package);
     }
 
     /**
@@ -138,7 +147,8 @@ class SharedPackageInstallerSolverStableTest extends \PHPUnit_Framework_TestCase
         /** @var SharedPackageInstaller|\PHPUnit_Framework_MockObject_MockObject $symlinkInstaller */
         $symlinkInstaller = $this->getMockBuilder('\LEtudiant\Composer\Installer\SharedPackageInstaller')
             ->disableOriginalConstructor()
-        ->getMock();
+            ->getMock()
+        ;
 
         return new SharedPackageInstallerSolver($symlinkInstaller, $this->installer);
     }

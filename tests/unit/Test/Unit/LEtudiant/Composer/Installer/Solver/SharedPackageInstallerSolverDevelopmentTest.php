@@ -46,7 +46,8 @@ class SharedPackageInstallerSolverDevelopmentTest extends SharedPackageInstaller
 
         $this->installer = $this->getMockBuilder('\LEtudiant\Composer\Installer\SharedPackageInstaller')
             ->disableOriginalConstructor()
-        ->getMock();
+            ->getMock()
+        ;
 
         $this->repository = $this->getMock('\Composer\Repository\InstalledRepositoryInterface');
     }
@@ -59,7 +60,8 @@ class SharedPackageInstallerSolverDevelopmentTest extends SharedPackageInstaller
         /** @var LibraryInstaller|\PHPUnit_Framework_MockObject_MockObject $defaultInstaller */
         $defaultInstaller = $this->getMockBuilder('\Composer\Installer\LibraryInstaller')
             ->disableOriginalConstructor()
-        ->getMock();
+            ->getMock()
+        ;
 
         return new SharedPackageInstallerSolver($this->installer, $defaultInstaller);
     }
