@@ -48,7 +48,7 @@ class SharedPackageInstallerConfig
     /**
      * @var array
      */
-    protected $packageList = [];
+    protected $packageList = array();
 
 
     /**
@@ -163,8 +163,12 @@ class SharedPackageInstallerConfig
      */
     public function setPackageList(array $extraConfigs)
     {
-        if (isset($extraConfigs['package-list'])) {
-            $this->packageList = $extraConfigs['package-list'];
+        if (isset($extraConfigs[SharedPackageInstaller::PACKAGE_TYPE]['package-list'])) {
+            if (!is_array($extraConfigs[SharedPackageInstaller::PACKAGE_TYPE]['package-list'])) {
+                throw new \UnexpectedValueException('The "package-list" configuration should be a JSON object');
+            }
+
+            $this->packageList = $extraConfigs[SharedPackageInstaller::PACKAGE_TYPE]['package-list'];
         }
     }
 
