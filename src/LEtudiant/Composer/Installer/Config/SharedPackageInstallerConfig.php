@@ -143,7 +143,7 @@ class SharedPackageInstallerConfig
     {
         if (isset($extraConfigs[SharedPackageInstaller::PACKAGE_TYPE]['symlink-enabled'])) {
             if (!is_bool($extraConfigs[SharedPackageInstaller::PACKAGE_TYPE]['symlink-enabled'])) {
-                throw new \InvalidArgumentException('The configuration "symlink-enabled" should be a boolean');
+                throw new \UnexpectedValueException('The configuration "symlink-enabled" should be a boolean');
             }
 
             $this->isSymlinkEnabled = $extraConfigs[SharedPackageInstaller::PACKAGE_TYPE]['symlink-enabled'];
@@ -164,10 +164,6 @@ class SharedPackageInstallerConfig
     public function setPackageList(array $extraConfigs)
     {
         if (isset($extraConfigs[SharedPackageInstaller::PACKAGE_TYPE]['package-list'])) {
-            if (!is_array($extraConfigs[SharedPackageInstaller::PACKAGE_TYPE]['package-list'])) {
-                throw new \UnexpectedValueException('The "package-list" configuration should be a JSON object');
-            }
-
             $this->packageList = $extraConfigs[SharedPackageInstaller::PACKAGE_TYPE]['package-list'];
         }
     }
