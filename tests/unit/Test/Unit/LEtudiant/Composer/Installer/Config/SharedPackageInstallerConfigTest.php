@@ -220,6 +220,20 @@ class SharedPackageInstallerConfigTest extends \PHPUnit_Framework_TestCase
 
     /**
      * @test
+     *
+     * @expectedException \UnexpectedValueException
+     * @expectedExceptionMessage The configuration "package-list" should be a JSON object
+     */
+    public function setPackageListWrongTypeException()
+    {
+        $this->createInstallerConfig(array(
+            'vendor-dir'   => sys_get_temp_dir() . '/composer-test-dependencies-dir',
+            'package-list' => 'foo'
+        ));
+    }
+
+    /**
+     * @test
      */
     public function setPackageList()
     {
