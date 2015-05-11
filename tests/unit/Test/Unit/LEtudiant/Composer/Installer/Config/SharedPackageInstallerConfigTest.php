@@ -207,7 +207,7 @@ class SharedPackageInstallerConfigTest extends \PHPUnit_Framework_TestCase
     /**
      * @test
      *
-     * @expectedException \InvalidArgumentException
+     * @expectedException \UnexpectedValueException
      * @expectedExceptionMessage The configuration "symlink-enabled" should be a boolean
      */
     public function setIsSymlinkEnabledWithString()
@@ -216,20 +216,6 @@ class SharedPackageInstallerConfigTest extends \PHPUnit_Framework_TestCase
             'vendor-dir'      => sys_get_temp_dir() . '/composer-test-dependencies-dir',
             'symlink-enabled' => 'foo'
         ))->isSymlinkEnabled());
-    }
-
-    /**
-     * @test
-     *
-     * @expectedException \UnexpectedValueException
-     * @expectedExceptionMessage The "package-list" configuration should be a JSON object
-     */
-    public function setPackageListWrongTypeException()
-    {
-        $this->createInstallerConfig(array(
-            'vendor-dir'   => sys_get_temp_dir() . '/composer-test-dependencies-dir',
-            'package-list' => 'foo'
-        ));
     }
 
     /**
