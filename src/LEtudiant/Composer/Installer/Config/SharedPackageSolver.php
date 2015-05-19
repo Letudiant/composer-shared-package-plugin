@@ -31,10 +31,11 @@ class SharedPackageSolver
 
 
     /**
-     * @param array $packageList
+     * @param SharedPackageInstallerConfig $config
      */
-    public function __construct(array $packageList)
+    public function __construct(SharedPackageInstallerConfig $config)
     {
+        $packageList = $config->getPackageList();
         if (isset($packageList['all'])) {
             $this->areAllShared = true;
         } else {

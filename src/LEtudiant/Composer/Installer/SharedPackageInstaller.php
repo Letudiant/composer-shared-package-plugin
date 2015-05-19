@@ -48,24 +48,25 @@ class SharedPackageInstaller extends LibraryInstaller
 
 
     /**
-     * @param IOInterface                 $io
-     * @param Composer                    $composer
-     * @param SymlinkFilesystem           $filesystem
-     * @param PackageDataManagerInterface $dataManager
+     * @param IOInterface                  $io
+     * @param Composer                     $composer
+     * @param SymlinkFilesystem            $filesystem
+     * @param PackageDataManagerInterface  $dataManager
+     * @param SharedPackageInstallerConfig $config
      */
     public function __construct(
         IOInterface $io,
         Composer $composer,
         SymlinkFilesystem $filesystem,
-        PackageDataManagerInterface $dataManager
+        PackageDataManagerInterface $dataManager,
+        SharedPackageInstallerConfig $config
     )
     {
         $this->filesystem = $filesystem;
 
         parent::__construct($io, $composer, 'library', $this->filesystem);
 
-        $this->setConfig($this->composer->getConfig());
-
+        $this->config = $config;
         $this->vendorDir = $this->config->getVendorDir();
         $this->packageDataManager = $dataManager;
         $this->packageDataManager->setVendorDir($this->vendorDir);
@@ -271,24 +272,12 @@ class SharedPackageInstaller extends LibraryInstaller
     }
 
     /**
-     * @param Config $config
-     */
-    protected function setConfig(Config $config)
-    {
-        $this->config = new SharedPackageInstallerConfig(
-            $config->get('vendor-dir'),
-            $config->get('vendor-dir', 1),
-            $this->composer->getPackage()->getExtra()
-        );
-    }
-
-    /**
      * @param string $packageType
      *
      * @return bool
      */
     public function supports($packageType)
     {
-        return self::PACKAGE_TYPE === $packageType;
+        return true;
     }
 }

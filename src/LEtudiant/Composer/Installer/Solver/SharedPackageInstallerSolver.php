@@ -17,6 +17,7 @@ use Composer\Installer\InstallerInterface;
 use Composer\Installer\LibraryInstaller;
 use Composer\Package\PackageInterface;
 use Composer\Repository\InstalledRepositoryInterface;
+use LEtudiant\Composer\Installer\Config\SharedPackageSolver;
 use LEtudiant\Composer\Installer\SharedPackageInstaller;
 use LEtudiant\Composer\Util\SymlinkFilesystem;
 
@@ -31,6 +32,11 @@ class SharedPackageInstallerSolver implements InstallerInterface
     protected $filesystem;
 
     /**
+     * @var SharedPackageSolver
+     */
+    protected $solver;
+
+    /**
      * @var SharedPackageInstaller
      */
     protected $symlinkInstaller;
@@ -42,11 +48,17 @@ class SharedPackageInstallerSolver implements InstallerInterface
 
 
     /**
+     * @param SharedPackageSolver    $solver
      * @param SharedPackageInstaller $symlinkInstaller
      * @param LibraryInstaller       $defaultInstaller
      */
-    public function __construct(SharedPackageInstaller $symlinkInstaller, LibraryInstaller $defaultInstaller)
+    public function __construct(
+        SharedPackageSolver $solver,
+        SharedPackageInstaller $symlinkInstaller,
+        LibraryInstaller $defaultInstaller
+    )
     {
+        $this->solver           = $solver;
         $this->symlinkInstaller = $symlinkInstaller;
         $this->defaultInstaller = $defaultInstaller;
     }
@@ -60,7 +72,7 @@ class SharedPackageInstallerSolver implements InstallerInterface
      */
     public function getInstallPath(PackageInterface $package)
     {
-        if ($package->isDev()) {
+        if ($this->solver->isSharedPackage($package)) {
             return $this->symlinkInstaller->getInstallPath($package);
         }
 
@@ -73,7 +85,7 @@ class SharedPackageInstallerSolver implements InstallerInterface
      */
     public function install(InstalledRepositoryInterface $repo, PackageInterface $package)
     {
-        if ($package->isDev()) {
+        if ($this->solver->isSharedPackage($package)) {
             $this->symlinkInstaller->install($repo, $package);
         } else {
             $this->defaultInstaller->install($repo, $package);
@@ -88,7 +100,7 @@ class SharedPackageInstallerSolver implements InstallerInterface
      */
     public function isInstalled(InstalledRepositoryInterface $repo, PackageInterface $package)
     {
-        if ($package->isDev()) {
+        if ($this->solver->isSharedPackage($package)) {
             return $this->symlinkInstaller->isInstalled($repo, $package);
         }
 
@@ -115,7 +127,7 @@ class SharedPackageInstallerSolver implements InstallerInterface
     public function update(InstalledRepositoryInterface $repo, PackageInterface $initial, PackageInterface $target)
     {
         // If both packages are stable version (tag)
-        if (!$target->isDev() && !$initial->isDev()) {
+        if (!$this->solver->isSharedPackage($initial) && !$this->solver->isSharedPackage($target)) {
             $this->defaultInstaller->update($repo, $initial, $target);
         } else {
             if (!$repo->hasPackage($initial)) {
@@ -134,7 +146,7 @@ class SharedPackageInstallerSolver implements InstallerInterface
      */
     public function uninstall(InstalledRepositoryInterface $repo, PackageInterface $package)
     {
-        if ($package->isDev()) {
+        if ($this->solver->isSharedPackage($package)) {
             if (!$repo->hasPackage($package)) {
                 throw new \InvalidArgumentException('Package is not installed : ' . $package->getPrettyName());
             }
@@ -152,6 +164,8 @@ class SharedPackageInstallerSolver implements InstallerInterface
      */
     public function supports($packageType)
     {
-        return SharedPackageInstaller::PACKAGE_TYPE === $packageType;
+        // The solving process is in the $solver::isSharedPackage() method
+
+        return true;
     }
 }
