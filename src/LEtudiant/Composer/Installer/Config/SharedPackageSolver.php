@@ -54,6 +54,10 @@ class SharedPackageSolver
             return true;
         }
 
+        if (SharedPackageInstaller::PACKAGE_TYPE === $package->getType()) {
+            return true;
+        }
+
         foreach ($this->packageList as $packageName) {
             if (
                 false !== strpos($package, '*')
@@ -65,15 +69,5 @@ class SharedPackageSolver
         }
 
         return false;
-    }
-
-    /**
-     * @param PackageInterface $package
-     *
-     * @return bool
-     */
-    public function support(PackageInterface $package)
-    {
-        return isset($this->packageList) || SharedPackageInstaller::PACKAGE_TYPE === $package->getType();
     }
 }
