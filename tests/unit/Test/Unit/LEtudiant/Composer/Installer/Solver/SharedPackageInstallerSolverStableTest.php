@@ -14,6 +14,8 @@ namespace Test\Unit\LEtudiant\Composer\Installer\Solver;
 use Composer\Installer\LibraryInstaller;
 use Composer\Package\Package;
 use Composer\Repository\InstalledRepositoryInterface;
+use LEtudiant\Composer\Installer\Config\SharedPackageInstallerConfig;
+use LEtudiant\Composer\Installer\Config\SharedPackageSolver;
 use LEtudiant\Composer\Installer\SharedPackageInstaller;
 use LEtudiant\Composer\Installer\Solver\SharedPackageInstallerSolver;
 
@@ -136,7 +138,7 @@ class SharedPackageInstallerSolverStableTest extends \PHPUnit_Framework_TestCase
      */
     public function supports()
     {
-        $this->assertFalse($this->createSolver()->supports('library'));
+        $this->assertTrue($this->createSolver()->supports('library'));
     }
 
     /**
@@ -150,7 +152,13 @@ class SharedPackageInstallerSolverStableTest extends \PHPUnit_Framework_TestCase
             ->getMock()
         ;
 
-        return new SharedPackageInstallerSolver($symlinkInstaller, $this->installer);
+        $config = new SharedPackageInstallerConfig('foo', 'bar', array(
+            SharedPackageInstaller::PACKAGE_TYPE => array(
+                'vendor-dir' => 'foo'
+            )
+        ));
+
+        return new SharedPackageInstallerSolver(new SharedPackageSolver($config), $symlinkInstaller, $this->installer);
     }
 
     /**
