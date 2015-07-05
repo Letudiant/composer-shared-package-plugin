@@ -23,7 +23,7 @@ class SharedPackageSolver
     /**
      * @var array
      */
-    protected $packageList;
+    protected $packageCallbacks = array();
 
     /**
      * @var bool
@@ -40,7 +40,7 @@ class SharedPackageSolver
         if (isset($packageList['all'])) {
             $this->areAllShared = true;
         } else {
-            $this->packageList = $packageList;
+            $this->packageCallbacks = $this->createCallbacks($packageList);
         }
     }
 
@@ -59,18 +59,41 @@ class SharedPackageSolver
             return true;
         }
 
-        foreach ($this->packageList as $packageName) {
-            if (
-                false !== strpos($packageName, '*')
-                && preg_match('/' . str_replace('*', '[a-zA-Z0-9-_]+',
-                    str_replace('/', '\/', $packageName)
-                ) . '/', $package->getPrettyName())
-                || $packageName === $package->getPrettyName()
-            ) {
+        $prettyName = $package->getPrettyName();
+        foreach ($this->packageCallbacks as $equalityCallback) {
+            if ($equalityCallback($prettyName)) {
                 return true;
             }
         }
 
         return false;
+    }
+
+    /**
+     * @param array $packageList
+     *
+     * @return array
+     */
+    protected function createCallbacks(array $packageList)
+    {
+        $callbacks = array();
+
+        foreach ($packageList as $packageName) {
+            // Has wild card (*)
+            if (false !== strpos($packageName, '*')) {
+                $pattern = str_replace('*', '[a-zA-Z0-9-_]+', str_replace('/', '\/', $packageName));
+
+                $callbacks[] = function ($packagePrettyName) use ($pattern) {
+                    return 1 === preg_match('/' . $pattern . '/', $packagePrettyName);
+                };
+            // Raw package name
+            } else {
+                $callbacks[] = function ($packagePrettyName) use ($packageName) {
+                    return $packageName === $packagePrettyName;
+                };
+            }
+        }
+
+        return $callbacks;
     }
 }
