@@ -17,7 +17,7 @@ use Composer\Installer\InstallerInterface;
 use Composer\Installer\LibraryInstaller;
 use Composer\Package\PackageInterface;
 use Composer\Repository\InstalledRepositoryInterface;
-use LEtudiant\Composer\Installer\Config\SharedPackageSolver;
+use LEtudiant\Composer\Installer\Solver\SharedPackageSolver;
 use LEtudiant\Composer\Installer\SharedPackageInstaller;
 use LEtudiant\Composer\Util\SymlinkFilesystem;
 

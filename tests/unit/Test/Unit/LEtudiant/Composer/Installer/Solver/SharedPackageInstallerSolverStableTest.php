@@ -15,7 +15,7 @@ use Composer\Installer\LibraryInstaller;
 use Composer\Package\Package;
 use Composer\Repository\InstalledRepositoryInterface;
 use LEtudiant\Composer\Installer\Config\SharedPackageInstallerConfig;
-use LEtudiant\Composer\Installer\Config\SharedPackageSolver;
+use LEtudiant\Composer\Installer\Solver\SharedPackageSolver;
 use LEtudiant\Composer\Installer\SharedPackageInstaller;
 use LEtudiant\Composer\Installer\Solver\SharedPackageInstallerSolver;
 

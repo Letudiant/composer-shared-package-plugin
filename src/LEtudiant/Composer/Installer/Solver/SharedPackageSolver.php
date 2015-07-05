@@ -9,9 +9,10 @@
  * file that was distributed with this source code.
  */
 
-namespace LEtudiant\Composer\Installer\Config;
+namespace LEtudiant\Composer\Installer\Solver;
 
 use Composer\Package\PackageInterface;
+use LEtudiant\Composer\Installer\Config\SharedPackageInstallerConfig;
 use LEtudiant\Composer\Installer\SharedPackageInstaller;
 
 /**
