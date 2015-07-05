@@ -60,8 +60,10 @@ class SharedPackageSolver
 
         foreach ($this->packageList as $packageName) {
             if (
-                false !== strpos($package, '*')
-                && preg_match('/' . str_replace('*', '[a-zA-Z0-9-]+', $packageName) . '/', $package)
+                false !== strpos($packageName, '*')
+                && preg_match('/' . str_replace('*', '[a-zA-Z0-9-_]+',
+                    str_replace('/', '\/', $packageName)
+                ) . '/', $package->getPrettyName())
                 || $packageName === $package->getPrettyName()
             ) {
                 return true;
