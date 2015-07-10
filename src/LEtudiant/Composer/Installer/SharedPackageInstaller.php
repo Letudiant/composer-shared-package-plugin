@@ -185,13 +185,12 @@ class SharedPackageInstaller extends LibraryInstaller
             $this->packageDataManager->setPackageInstallationSource($package);
 
             parent::uninstall($repo, $package);
-
-            $this->packageDataManager->removePackageUsage($package);
         } else {
             $this->removeBinaries($package);
             $repo->removePackage($package);
         }
 
+        $this->packageDataManager->removePackageUsage($package);
         $this->removePackageVendorSymlink($package);
     }
 
