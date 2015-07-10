@@ -24,7 +24,7 @@ use LEtudiant\Composer\Installer\Solver\SharedPackageInstallerSolver;
  *
  * @covers \LEtudiant\Composer\Installer\Solver\SharedPackageInstallerSolver
  */
-class SharedPackageInstallerSolverStableTest extends \PHPUnit_Framework_TestCase
+class SharedPackageInstallerSolverNotSharedTest extends \PHPUnit_Framework_TestCase
 {
     /**
      * @var LibraryInstaller|\PHPUnit_Framework_MockObject_MockObject

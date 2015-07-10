@@ -19,14 +19,12 @@ use LEtudiant\Composer\Installer\Solver\SharedPackageSolver;
 use LEtudiant\Composer\Installer\SharedPackageInstaller;
 use LEtudiant\Composer\Installer\Solver\SharedPackageInstallerSolver;
 
-require __DIR__ . '/SharedPackageInstallerSolverStableTest.php';
-
 /**
  * @author Sylvain Lorinet <sylvain.lorinet@gmail.com>
  *
  * @covers \LEtudiant\Composer\Installer\Solver\SharedPackageInstallerSolver
  */
-class SharedPackageInstallerSolverDevelopmentTest extends SharedPackageInstallerSolverStableTest
+class SharedPackageInstallerSolverSharedTest extends SharedPackageInstallerSolverNotSharedTest
 {
     /**
      * @var SharedPackageInstaller|\PHPUnit_Framework_MockObject_MockObject

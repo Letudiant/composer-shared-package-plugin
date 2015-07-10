@@ -423,7 +423,7 @@ class SharedPackageInstallerTest extends TestCase
             ->willReturn(true)
         ;
 
-        $library = $this->createInstaller($this->config, $filesystem);
+        $installer = $this->createInstaller($this->config, $filesystem);
         $package = $this->createPackageMock();
 
         $this->repository
@@ -451,7 +451,49 @@ class SharedPackageInstallerTest extends TestCase
             ->with($package)
         ;
 
-        $library->uninstall($this->repository, $package);
+        $installer->uninstall($this->repository, $package);
+    }
+
+    /**
+     * @test
+     */
+    public function uninstallKeepSources()
+    {
+        $this->io
+            ->expects($this->once())
+            ->method('askConfirmation')
+            ->willReturn(false)
+        ;
+
+        /** @var SymlinkFilesystem|\PHPUnit_Framework_MockObject_MockObject $filesystem */
+        $filesystem = $this->getMock('\LEtudiant\Composer\Util\SymlinkFilesystem');
+        $filesystem
+            ->expects($this->once())
+            ->method('removeSymlink')
+            ->willReturn(true)
+        ;
+
+        $installer = $this->createInstaller($this->config, $filesystem);
+        $package = $this->createPackageMock();
+
+        $this->repository
+            ->expects($this->once())
+            ->method('removePackage')
+            ->with($package)
+        ;
+
+        $this->dm
+            ->expects($this->never())
+            ->method('remove')
+        ;
+
+        $this->dataManager
+            ->expects($this->once())
+            ->method('removePackageUsage')
+            ->with($package)
+        ;
+
+        $installer->uninstall($this->repository, $package);
     }
 
     /**
@@ -459,13 +501,13 @@ class SharedPackageInstallerTest extends TestCase
      */
     public function getInstallPath()
     {
-        $library = $this->createInstaller();
+        $installer = $this->createInstaller();
         $package = $this->createPackageMock();
         $package
             ->expects($this->once())
             ->method('getTargetDir')
             ->will($this->returnValue(null));
-        $this->assertEquals($this->dependenciesDir . '/letudiant/foo-bar/dev-develop', $library->getInstallPath($package));
+        $this->assertEquals($this->dependenciesDir . '/letudiant/foo-bar/dev-develop', $installer->getInstallPath($package));
     }
 
     /**
@@ -473,7 +515,7 @@ class SharedPackageInstallerTest extends TestCase
      */
     public function getInstallPathWithTargetDir()
     {
-        $library = $this->createInstaller();
+        $installer = $this->createInstaller();
         $package = $this->createPackageMock();
         $package
             ->expects($this->once())
@@ -487,7 +529,7 @@ class SharedPackageInstallerTest extends TestCase
             ->will($this->returnValue('foo/bar'))
         ;
 
-        $this->assertEquals($this->dependenciesDir . '/letudiant/foo-bar/dev-develop/Some/Namespace', $library->getInstallPath($package));
+        $this->assertEquals($this->dependenciesDir . '/letudiant/foo-bar/dev-develop/Some/Namespace', $installer->getInstallPath($package));
     }
 
     /**
@@ -495,10 +537,10 @@ class SharedPackageInstallerTest extends TestCase
      */
     public function supports()
     {
-        $library = $this->createInstaller();
+        $installer = $this->createInstaller();
 
-        $this->assertTrue($library->supports('library'));
-        $this->assertTrue($library->supports(SharedPackageInstaller::PACKAGE_TYPE));
+        $this->assertTrue($installer->supports('library'));
+        $this->assertTrue($installer->supports(SharedPackageInstaller::PACKAGE_TYPE));
     }
 
     /**
