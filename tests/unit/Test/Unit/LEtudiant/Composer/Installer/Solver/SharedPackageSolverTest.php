@@ -171,10 +171,14 @@ class SharedPackageSolverTest extends \PHPUnit_Framework_TestCase
 
         $solver = $this->createSolver();
 
+        // False
+        $this->assertFalse($solver->isSharedPackage($this->createPackageMock(SharedPackageInstaller::PACKAGE_PRETTY_NAME)));
+
+        // True
         $this->assertTrue($solver->isSharedPackage($this->createPackageMock()));
-        $this->assertTrue($solver->isSharedPackage($this->createPackageMock('foo/bar', 0)));
-        $this->assertTrue($solver->isSharedPackage($this->createPackageMock('bar/foo', 0)));
-        $this->assertTrue($solver->isSharedPackage($this->createPackageMock('unknown/unknown', 0)));
+        $this->assertTrue($solver->isSharedPackage($this->createPackageMock('foo/bar')));
+        $this->assertTrue($solver->isSharedPackage($this->createPackageMock('bar/foo')));
+        $this->assertTrue($solver->isSharedPackage($this->createPackageMock('unknown/unknown')));
     }
 
     /**
@@ -199,7 +203,7 @@ class SharedPackageSolverTest extends \PHPUnit_Framework_TestCase
         // True
 
         // Package with "shared-package" type
-        $this->assertTrue($solver->isSharedPackage($this->createPackageMock('unknown/unknown', 0, SharedPackageInstaller::PACKAGE_TYPE)));
+        $this->assertTrue($solver->isSharedPackage($this->createPackageMock('unknown/unknown', SharedPackageInstaller::PACKAGE_TYPE)));
 
         // Packages in the package list
         $this->assertTrue($solver->isSharedPackage($this->createPackageMock('foo/bar')));
@@ -208,18 +212,17 @@ class SharedPackageSolverTest extends \PHPUnit_Framework_TestCase
 
     /**
      * @param null|string $prettyName
-     * @param int         $expectedCall
      * @param null|string $type
      *
      * @return PackageInterface|\PHPUnit_Framework_MockObject_MockObject
      */
-    public function createPackageMock($prettyName = null, $expectedCall = 1, $type = null)
+    public function createPackageMock($prettyName = null, $type = null)
     {
         $package = $this->getMock('Composer\Package\PackageInterface');
 
         if (null != $prettyName) {
             $package
-                ->expects($this->exactly($expectedCall))
+                ->expects($this->once())
                 ->method('getPrettyName')
                 ->willReturn($prettyName)
             ;
