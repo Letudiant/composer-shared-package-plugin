@@ -133,20 +133,6 @@ class SharedPackageInstaller extends LibraryInstaller
     }
 
     /**
-     * Behaviors :
-     *
-     * New (version replacement, Stable to Dev or Dev to Stable) :
-     *  - Stable : > vendor directory
-     *  - Dev : > shared dependencies directory
-     *
-     * Update (if package name & target directory are the same) :
-     *  - Stable : checkout new sources
-     *  - Dev : checkout new sources
-     *
-     * In case of replacement (see "New" part above) :
-     *  - The old package is completely deleted ("composer remove" process) before installing the new version
-     *
-     *
      * {@inheritdoc}
      */
     public function update(InstalledRepositoryInterface $repo, PackageInterface $initial, PackageInterface $target)
@@ -154,7 +140,7 @@ class SharedPackageInstaller extends LibraryInstaller
         $this->packageDataManager->setPackageInstallationSource($initial);
         $this->packageDataManager->setPackageInstallationSource($target);
 
-        // The package need only a code update because the version is the same
+        // The package need only a code update because the version (branch), only the commit changed
         if ($this->getInstallPath($initial) === $this->getInstallPath($target)) {
             $this->createPackageVendorSymlink($target);
 

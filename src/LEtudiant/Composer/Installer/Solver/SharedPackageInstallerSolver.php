@@ -107,25 +107,11 @@ class SharedPackageInstallerSolver implements InstallerInterface
     }
 
     /**
-     * Behaviors :
-     *
-     * New (version replacement, Stable to Dev or Dev to Stable) :
-     *  - Stable : > vendor directory
-     *  - Dev : > shared dependencies directory
-     *
-     * Update (if package name & target directory are the same) :
-     *  - Stable : checkout new sources
-     *  - Dev : checkout new sources
-     *
-     * In case of replacement (see "New" part above) :
-     *  - The old package is completely deleted ("composer remove" process) before installing the new version
-     *
-     *
      * {@inheritdoc}
      */
     public function update(InstalledRepositoryInterface $repo, PackageInterface $initial, PackageInterface $target)
     {
-        // If both packages are stable version (tag)
+        // If both packages are not shared
         if (!$this->solver->isSharedPackage($initial) && !$this->solver->isSharedPackage($target)) {
             $this->defaultInstaller->update($repo, $initial, $target);
         } else {
@@ -163,7 +149,7 @@ class SharedPackageInstallerSolver implements InstallerInterface
      */
     public function supports($packageType)
     {
-        // The solving process is in the $solver::isSharedPackage() method
+        // The solving process is in SharedPackageSolver::isSharedPackage() method
 
         return true;
     }
