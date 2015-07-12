@@ -51,15 +51,19 @@ class SharedPackageSolver
      */
     public function isSharedPackage(PackageInterface $package)
     {
-        if ($this->areAllShared) {
-            return true;
-        }
-
-        if (SharedPackageInstaller::PACKAGE_TYPE === $package->getType()) {
-            return true;
-        }
-
         $prettyName = $package->getPrettyName();
+
+        // Avoid putting this package into dependencies folder, because on the first installation the package won't be
+        // installed in dependencies folder but in the vendor folder.
+        // So I prefer keeping this behavior for further installs.
+        if (SharedPackageInstaller::PACKAGE_PRETTY_NAME === $prettyName) {
+            return false;
+        }
+
+        if ($this->areAllShared || SharedPackageInstaller::PACKAGE_TYPE === $package->getType()) {
+            return true;
+        }
+
         foreach ($this->packageCallbacks as $equalityCallback) {
             if ($equalityCallback($prettyName)) {
                 return true;

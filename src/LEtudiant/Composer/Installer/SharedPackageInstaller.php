@@ -30,6 +30,7 @@ use LEtudiant\Composer\Util\SymlinkFilesystem;
 class SharedPackageInstaller extends LibraryInstaller
 {
     const PACKAGE_TYPE = 'shared-package';
+    const PACKAGE_PRETTY_NAME = 'letudiant/composer-shared-package-plugin';
 
     /**
      * @var SharedPackageInstallerConfig
