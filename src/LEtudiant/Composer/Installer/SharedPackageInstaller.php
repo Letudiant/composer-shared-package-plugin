@@ -30,6 +30,7 @@ use LEtudiant\Composer\Util\SymlinkFilesystem;
 class SharedPackageInstaller extends LibraryInstaller
 {
     const PACKAGE_TYPE = 'shared-package';
+    const PACKAGE_PRETTY_NAME = 'letudiant/composer-shared-package-plugin';
 
     /**
      * @var SharedPackageInstallerConfig
@@ -48,24 +49,25 @@ class SharedPackageInstaller extends LibraryInstaller
 
 
     /**
-     * @param IOInterface                 $io
-     * @param Composer                    $composer
-     * @param SymlinkFilesystem           $filesystem
-     * @param PackageDataManagerInterface $dataManager
+     * @param IOInterface                  $io
+     * @param Composer                     $composer
+     * @param SymlinkFilesystem            $filesystem
+     * @param PackageDataManagerInterface  $dataManager
+     * @param SharedPackageInstallerConfig $config
      */
     public function __construct(
         IOInterface $io,
         Composer $composer,
         SymlinkFilesystem $filesystem,
-        PackageDataManagerInterface $dataManager
+        PackageDataManagerInterface $dataManager,
+        SharedPackageInstallerConfig $config
     )
     {
         $this->filesystem = $filesystem;
 
         parent::__construct($io, $composer, 'library', $this->filesystem);
 
-        $this->setConfig($this->composer->getConfig());
-
+        $this->config = $config;
         $this->vendorDir = $this->config->getVendorDir();
         $this->packageDataManager = $dataManager;
         $this->packageDataManager->setVendorDir($this->vendorDir);
@@ -131,20 +133,6 @@ class SharedPackageInstaller extends LibraryInstaller
     }
 
     /**
-     * Behaviors :
-     *
-     * New (version replacement, Stable to Dev or Dev to Stable) :
-     *  - Stable : > vendor directory
-     *  - Dev : > shared dependencies directory
-     *
-     * Update (if package name & target directory are the same) :
-     *  - Stable : checkout new sources
-     *  - Dev : checkout new sources
-     *
-     * In case of replacement (see "New" part above) :
-     *  - The old package is completely deleted ("composer remove" process) before installing the new version
-     *
-     *
      * {@inheritdoc}
      */
     public function update(InstalledRepositoryInterface $repo, PackageInterface $initial, PackageInterface $target)
@@ -152,7 +140,7 @@ class SharedPackageInstaller extends LibraryInstaller
         $this->packageDataManager->setPackageInstallationSource($initial);
         $this->packageDataManager->setPackageInstallationSource($target);
 
-        // The package need only a code update because the version is the same
+        // The package need only a code update because the version (branch), only the commit changed
         if ($this->getInstallPath($initial) === $this->getInstallPath($target)) {
             $this->createPackageVendorSymlink($target);
 
@@ -184,13 +172,12 @@ class SharedPackageInstaller extends LibraryInstaller
             $this->packageDataManager->setPackageInstallationSource($package);
 
             parent::uninstall($repo, $package);
-
-            $this->packageDataManager->removePackageUsage($package);
         } else {
             $this->removeBinaries($package);
             $repo->removePackage($package);
         }
 
+        $this->packageDataManager->removePackageUsage($package);
         $this->removePackageVendorSymlink($package);
     }
 
@@ -271,24 +258,12 @@ class SharedPackageInstaller extends LibraryInstaller
     }
 
     /**
-     * @param Config $config
-     */
-    protected function setConfig(Config $config)
-    {
-        $this->config = new SharedPackageInstallerConfig(
-            $config->get('vendor-dir'),
-            $config->get('vendor-dir', 1),
-            $this->composer->getPackage()->getExtra()
-        );
-    }
-
-    /**
      * @param string $packageType
      *
      * @return bool
      */
     public function supports($packageType)
     {
-        return self::PACKAGE_TYPE === $packageType;
+        return true;
     }
 }

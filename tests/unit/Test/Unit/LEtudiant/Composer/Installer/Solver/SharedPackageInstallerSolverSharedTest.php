@@ -14,17 +14,17 @@ namespace Test\Unit\LEtudiant\Composer\Installer\Solver;
 use Composer\Installer\LibraryInstaller;
 use Composer\Package\Package;
 use Composer\Repository\InstalledRepositoryInterface;
+use LEtudiant\Composer\Installer\Config\SharedPackageInstallerConfig;
+use LEtudiant\Composer\Installer\Solver\SharedPackageSolver;
 use LEtudiant\Composer\Installer\SharedPackageInstaller;
 use LEtudiant\Composer\Installer\Solver\SharedPackageInstallerSolver;
-
-require __DIR__ . '/SharedPackageInstallerSolverStableTest.php';
 
 /**
  * @author Sylvain Lorinet <sylvain.lorinet@gmail.com>
  *
  * @covers \LEtudiant\Composer\Installer\Solver\SharedPackageInstallerSolver
  */
-class SharedPackageInstallerSolverDevelopmentTest extends SharedPackageInstallerSolverStableTest
+class SharedPackageInstallerSolverSharedTest extends SharedPackageInstallerSolverNotSharedTest
 {
     /**
      * @var SharedPackageInstaller|\PHPUnit_Framework_MockObject_MockObject
@@ -63,7 +63,13 @@ class SharedPackageInstallerSolverDevelopmentTest extends SharedPackageInstaller
             ->getMock()
         ;
 
-        return new SharedPackageInstallerSolver($this->installer, $defaultInstaller);
+        $config = new SharedPackageInstallerConfig('foo', 'bar', array(
+            SharedPackageInstaller::PACKAGE_TYPE => array(
+                'vendor-dir' => 'foo'
+            )
+        ));
+
+        return new SharedPackageInstallerSolver(new SharedPackageSolver($config), $this->installer, $defaultInstaller);
     }
 
     /**

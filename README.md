@@ -5,9 +5,8 @@
 [![Build Status](https://travis-ci.org/Letudiant/composer-shared-package-plugin.svg?branch=master)](https://travis-ci.org/Letudiant/composer-shared-package-plugin)
 [![Test Coverage](https://codeclimate.com/github/Letudiant/composer-shared-package-plugin/badges/coverage.svg)](https://codeclimate.com/github/Letudiant/composer-shared-package-plugin)
 
-This composer plugin allows you to share **your own development packages between your projects by creating symlinks**.  
-All shared packages will be in the same dedicated directory for all of your projects (ordered by versions) and a symlink directory container will be created on your projects (`vendor-shared` by default).  
-A stable package (tagged version) won't be shared, because you should'nt modify a stable package.
+This composer plugin allows you to share **your selected packages between your projects by creating symlinks**.  
+All shared packages will be in the same dedicated directory for all of your projects (ordered by versions) and a symlink directory container will be created on your projects (`vendor-shared` by default).
 
 **This plugin will improve your work process** to avoid to work into the `vendor` folder or to avoid to force you to push your package to work/test it with another project.
 
@@ -26,7 +25,15 @@ A stable package (tagged version) won't be shared, because you should'nt modify 
 
 ## How it works
 
-A shared package is flagged by his `composer.json` `type` configuration. If the `type` is `shared-package` and if this composer plugin is required in the root project `composer.json` : the package will be downloaded in the dedicated dependencies directory that you provided and a symlink will be created in the project `vendor-shared` directory *(by default)*.  
+A shared package is flagged by two ways :
+
+* By setting the root project `composer.json` extra configuration `package-list` with the selected package name *(works only with the `>= 2.x` version)*.
+* By setting the `composer.json` package `type`  to `shared-package` *(the `<= 1.x` version way, still works on `2.x`)*.
+
+
+
+If this composer plugin is required in the root project `composer.json` : the package will be downloaded in the dedicated dependencies directory that you provided and a symlink will be created in the project `vendor-shared` directory *(by default)*.  
+
 This plugin allows you to work with many versions at the same time for a package by creating a sub-directory named by the version of your package *(dev-master, dev-develop, 1.0.x-dev, etc)*.
 
 A `packages.json` file is created in the dependencies sources directory to know which projects use a package version and be able to ask you if you want to delete the version directory during the Composer uninstall process, if no project seems to use it.
@@ -35,18 +42,18 @@ A `packages.json` file is created in the dependencies sources directory to know 
 
 ### Step 1 : edit your root composer.json
 
-Add, to your root project `composer.json`, this require :
+Add, to your root project `composer.json`, this require **(in dev only)** :
 
 ``` json
 // composer.json (project)
 {
-    "require": {
-        "letudiant/composer-shared-package-plugin": "~1.2"
-        
-        // ...
+    "require-dev": {
+        "letudiant/composer-shared-package-plugin": "~2.0"
     }
 }
 ```
+
+**Note:** this plugin works fine in production mode, but it has been created for development purpose.
 
 ### Step 2 : set your dependencies vendor path
 
@@ -71,16 +78,27 @@ If your path is relative, your symlink directory base path will be relative too.
 
 **Note for VM users:** you can manually override the symlink directory base path with the configuration `symlink-base-path` if your host machine dependencies directory path is not the same as your guest machine, see [all available configurations](./docs/all-available-configurations.md) page for more information.
 
-### Step 3 : type your package
+### Step 3 : select your shared packages
 
 Add, in your own package `composer.json`, which one you want to share between your projects :
 
 ``` json
-// composer.json (package)
+// composer.json
 {
-    "type": "shared-package"
+    "extra": {
+        "shared-package": {
+            "vendor-dir": "/path/to/your/dependencies/directory",
+            "package-list": [
+        "foo/bar",
+        "bar/*"
+      ]
+        }
+    }
 }
 ```
+
+**Note:** as you can see, you can pass a wild card `*` to the package name. So, in this example, all packages that starts with `bar/` will be shared.
+**Note²:** you can set a package name to `*` to share **all packages**.
 
 ### Step 4 : (re)install your dependencies
 
@@ -128,7 +146,10 @@ Here, a complete example. Our own shared package is called `acme/foo-bar`.
     },
     "extra": {
         "shared-package": {
-            "vendor-dir": "../composer-dependencies"
+            "vendor-dir": "../composer-dependencies",
+            "package-list": [
+            "acme/foo-bar"
+          ]
         }
     }
 }
@@ -157,7 +178,7 @@ With this `composer.json`, the structure will look like :
 +-- ...
 ```
 
-## How to use (known issues)
+## How to use (and known issues)
 
 This plugin implement a new behavior which is not handled by Composer, so there are a few known issues. Here, the way to fix them :
 
@@ -176,10 +197,15 @@ Feel free to open an issue, fork this project or suggest an awesome new feature 
 
 ## ChangeLog
 
+### 2.0.0 :
+
+* Implement the possibility to choice each package you want to share with the configuration `package-list` - [More information](./docs/all-available-configurations.md).
+* Delete conditions on stable/dev version. Now a shared package is shared on stable version too (tag).
+
 ### 1.2.0 :
 
 * Rewrite installer, the installer choice process is now in a dedicated class.
-* Implement new `symlink-enabled` configuration to allow to enable/disable the symlink creation process  - [More information](./docs/all-available-configurations.md).
+* Implement new `symlink-enabled` configuration to allow to enable/disable the symlink creation process - [More information](./docs/all-available-configurations.md).
 
 ### 1.1.0 :
 

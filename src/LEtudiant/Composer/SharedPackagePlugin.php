@@ -16,6 +16,8 @@ use Composer\Installer\LibraryInstaller;
 use Composer\IO\IOInterface;
 use Composer\Plugin\PluginInterface;
 use LEtudiant\Composer\Data\Package\SharedPackageDataManager;
+use LEtudiant\Composer\Installer\Config\SharedPackageInstallerConfig;
+use LEtudiant\Composer\Installer\Solver\SharedPackageSolver;
 use LEtudiant\Composer\Installer\SharedPackageInstaller;
 use LEtudiant\Composer\Installer\Solver\SharedPackageInstallerSolver;
 use LEtudiant\Composer\Util\SymlinkFilesystem;
@@ -31,15 +33,32 @@ class SharedPackagePlugin implements PluginInterface
      */
     public function activate(Composer $composer, IOInterface $io)
     {
-        $installer = new SharedPackageInstallerSolver(
+        $config = $this->setConfig($composer);
+
+        $composer->getInstallationManager()->addInstaller(new SharedPackageInstallerSolver(
+            new SharedPackageSolver($config),
             new SharedPackageInstaller(
                 $io,
                 $composer,
                 new SymlinkFilesystem(),
-                new SharedPackageDataManager($composer)
+                new SharedPackageDataManager($composer),
+                $config
             ),
             new LibraryInstaller($io, $composer)
+        ));
+    }
+
+    /**
+     * @param Composer $composer
+     *
+     * @return SharedPackageInstallerConfig
+     */
+    protected function setConfig(Composer $composer)
+    {
+        return new SharedPackageInstallerConfig(
+            $composer->getConfig()->get('vendor-dir'),
+            $composer->getConfig()->get('vendor-dir', 1),
+            $composer->getPackage()->getExtra()
         );
-        $composer->getInstallationManager()->addInstaller($installer);
     }
 }

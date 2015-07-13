@@ -45,6 +45,11 @@ class SharedPackageInstallerConfig
      */
     protected $isSymlinkEnabled = true;
 
+    /**
+     * @var array
+     */
+    protected $packageList = array();
+
 
     /**
      * @param string     $originalRelativeVendorDir
@@ -68,18 +73,19 @@ class SharedPackageInstallerConfig
         $this->setSymlinkDirectory($baseDir, $extraConfigs);
         $this->setSymlinkBasePath($extraConfigs);
         $this->setIsSymlinkEnabled($extraConfigs);
+        $this->setPackageList($extraConfigs);
     }
 
     /**
      * @param string $baseDir
-     * @param array  $extra
+     * @param array  $extraConfigs
      */
-    protected function setSymlinkDirectory($baseDir, array $extra)
+    protected function setSymlinkDirectory($baseDir, array $extraConfigs)
     {
         $this->symlinkDir = $baseDir . 'vendor-shared';
 
-        if (isset($extra[SharedPackageInstaller::PACKAGE_TYPE]['symlink-dir'])) {
-            $this->symlinkDir = $extra[SharedPackageInstaller::PACKAGE_TYPE]['symlink-dir'];
+        if (isset($extraConfigs[SharedPackageInstaller::PACKAGE_TYPE]['symlink-dir'])) {
+            $this->symlinkDir = $extraConfigs[SharedPackageInstaller::PACKAGE_TYPE]['symlink-dir'];
 
             if ('/' != $this->symlinkDir[0]) {
                 $this->symlinkDir = $baseDir . $this->symlinkDir;
@@ -89,13 +95,13 @@ class SharedPackageInstallerConfig
 
     /**
      * @param string $baseDir
-     * @param array  $extra
+     * @param array  $extraConfigs
      *
      * @throws \InvalidArgumentException
      */
-    protected function setVendorDir($baseDir, array $extra)
+    protected function setVendorDir($baseDir, array $extraConfigs)
     {
-        $this->vendorDir = $extra[SharedPackageInstaller::PACKAGE_TYPE]['vendor-dir'];
+        $this->vendorDir = $extraConfigs[SharedPackageInstaller::PACKAGE_TYPE]['vendor-dir'];
         if ('/' != $this->vendorDir[0]) {
             $this->vendorDir = $baseDir . $this->vendorDir;
         }
@@ -106,19 +112,19 @@ class SharedPackageInstallerConfig
      * This is useful for a Virtual Machine environment, where directories can be different
      * on the host machine and the guest machine.
      *
-     * @param array $extra
+     * @param array $extraConfigs
      */
-    protected function setSymlinkBasePath(array $extra)
+    protected function setSymlinkBasePath(array $extraConfigs)
     {
-        if (isset($extra[SharedPackageInstaller::PACKAGE_TYPE]['symlink-base-path'])) {
-            $this->symlinkBasePath = $extra[SharedPackageInstaller::PACKAGE_TYPE]['symlink-base-path'];
+        if (isset($extraConfigs[SharedPackageInstaller::PACKAGE_TYPE]['symlink-base-path'])) {
+            $this->symlinkBasePath = $extraConfigs[SharedPackageInstaller::PACKAGE_TYPE]['symlink-base-path'];
 
             // Remove the ending slash if exists
             if ('/' === $this->symlinkBasePath[strlen($this->symlinkBasePath) - 1]) {
                 $this->symlinkBasePath = substr($this->symlinkBasePath, 0, -1);
             }
-        } elseif (0 < strpos($extra[SharedPackageInstaller::PACKAGE_TYPE]['vendor-dir'], '/')) {
-            $this->symlinkBasePath = $extra[SharedPackageInstaller::PACKAGE_TYPE]['vendor-dir'];
+        } elseif (0 < strpos($extraConfigs[SharedPackageInstaller::PACKAGE_TYPE]['vendor-dir'], '/')) {
+            $this->symlinkBasePath = $extraConfigs[SharedPackageInstaller::PACKAGE_TYPE]['vendor-dir'];
         }
 
         // Up to the project root directory
@@ -131,16 +137,40 @@ class SharedPackageInstallerConfig
      * The symlink directory creation process can be disabled.
      * This may mean that you work directly with the sources directory so the symlink directory is useless.
      *
-     * @param array $extra
+     * @param array $extraConfigs
      */
-    protected function setIsSymlinkEnabled(array $extra)
+    protected function setIsSymlinkEnabled(array $extraConfigs)
     {
-        if (isset($extra[SharedPackageInstaller::PACKAGE_TYPE]['symlink-enabled'])) {
-            if (!is_bool($extra[SharedPackageInstaller::PACKAGE_TYPE]['symlink-enabled'])) {
-                throw new \InvalidArgumentException('The configuration "symlink-enabled" should be a boolean');
+        if (isset($extraConfigs[SharedPackageInstaller::PACKAGE_TYPE]['symlink-enabled'])) {
+            if (!is_bool($extraConfigs[SharedPackageInstaller::PACKAGE_TYPE]['symlink-enabled'])) {
+                throw new \UnexpectedValueException('The configuration "symlink-enabled" should be a boolean');
             }
 
-            $this->isSymlinkEnabled = $extra[SharedPackageInstaller::PACKAGE_TYPE]['symlink-enabled'];
+            $this->isSymlinkEnabled = $extraConfigs[SharedPackageInstaller::PACKAGE_TYPE]['symlink-enabled'];
+        }
+    }
+
+    /**
+     * @return array
+     */
+    public function getPackageList()
+    {
+        return $this->packageList;
+    }
+
+    /**
+     * @param array $extraConfigs
+     */
+    public function setPackageList(array $extraConfigs)
+    {
+        if (isset($extraConfigs[SharedPackageInstaller::PACKAGE_TYPE]['package-list'])) {
+            $packageList = $extraConfigs[SharedPackageInstaller::PACKAGE_TYPE]['package-list'];
+
+            if (!is_array($packageList)) {
+                throw new \UnexpectedValueException('The configuration "package-list" should be a JSON object');
+            }
+
+            $this->packageList = $packageList;
         }
     }
 
