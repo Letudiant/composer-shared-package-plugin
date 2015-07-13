@@ -51,7 +51,7 @@ class SharedPackageSolverTest extends \PHPUnit_Framework_TestCase
             ->expects($this->once())
             ->method('getPackageList')
             ->willReturn(array(
-                'all' => true
+                '*'
             ))
         ;
 
@@ -165,7 +165,7 @@ class SharedPackageSolverTest extends \PHPUnit_Framework_TestCase
             ->expects($this->once())
             ->method('getPackageList')
             ->willReturn(array(
-                'all' => true
+                '*'
             ))
         ;
 

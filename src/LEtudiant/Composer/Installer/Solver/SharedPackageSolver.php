@@ -37,9 +37,14 @@ class SharedPackageSolver
     public function __construct(SharedPackageInstallerConfig $config)
     {
         $packageList = $config->getPackageList();
-        if (isset($packageList['all'])) {
-            $this->areAllShared = true;
-        } else {
+
+        foreach ($packageList as $packageName) {
+            if ('*' === $packageName) {
+                $this->areAllShared = true;
+            }
+        }
+
+        if (!$this->areAllShared) {
             $this->packageCallbacks = $this->createCallbacks($packageList);
         }
     }
