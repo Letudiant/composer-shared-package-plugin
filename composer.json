@@ -1,6 +1,6 @@
 {
     "name": "letudiant/composer-shared-package-plugin",
-    "description": "This composer plugin allows you to share development required packages between your projects with symlinks.",
+    "description": "This composer plugin allows you to share selected packages between your projects with symlinks.",
     "type": "composer-plugin",
     "license": "MIT",
     "authors": [
