@@ -89,9 +89,9 @@ Add, in your own package `composer.json`, which one you want to share between yo
         "shared-package": {
             "vendor-dir": "/path/to/your/dependencies/directory",
             "package-list": [
-        "foo/bar",
-        "bar/*"
-      ]
+                "foo/bar",
+                "bar/*"
+            ]
         }
     }
 }
@@ -118,7 +118,7 @@ You can avoid to have two project `composer.json` by setting your `require` depe
         "acme/foo-bar": "~1.0"
     },
     "require-dev": {
-      "acme/foo-bar": "dev-develop as 1.0"
+        "acme/foo-bar": "dev-develop as 1.0"
     }
 }
 ```
@@ -148,8 +148,8 @@ Here, a complete example. Our own shared package is called `acme/foo-bar`.
         "shared-package": {
             "vendor-dir": "../composer-dependencies",
             "package-list": [
-            "acme/foo-bar"
-          ]
+                "acme/foo-bar"
+            ]
         }
     }
 }
