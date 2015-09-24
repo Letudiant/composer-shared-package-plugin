@@ -159,7 +159,7 @@ With this `composer.json`, the structure will look like :
 
 ``` bash
 |-- packages.json
-|-- dependencies/
+|-- composer-dependencies/
 |   +-- acme/
 |       +-- foo-bar/
 |           +-- dev-develop/
