@@ -22,10 +22,10 @@ All these configuration should set in the `extra` `shared-package`configuration 
             "symlink-base-path": "/home/www/projects/composer-dependencies",
             "symlink-enabled": true,
             "package-list": [
-            "foo/bar",
-            "bar/*",
-            "*"
-          ]
+                "foo/bar",
+                "bar/*",
+                "*"
+            ]
         }
     }
 }
