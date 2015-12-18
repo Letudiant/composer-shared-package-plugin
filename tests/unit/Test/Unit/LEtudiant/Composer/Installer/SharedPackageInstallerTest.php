@@ -303,7 +303,7 @@ class SharedPackageInstallerTest extends TestCase
         $installer = $this->createInstaller($config);
         $package = $this->createPackageMock();
         $package
-            ->expects($this->exactly(4))
+            ->expects($this->exactly(7))
             ->method('getTargetDir')
             ->willReturn('target-dir')
         ;
@@ -504,9 +504,9 @@ class SharedPackageInstallerTest extends TestCase
         $installer = $this->createInstaller();
         $package = $this->createPackageMock();
         $package
-            ->expects($this->once())
             ->method('getTargetDir')
-            ->will($this->returnValue(null));
+            ->will($this->returnValue(null))
+        ;
         $this->assertEquals($this->dependenciesDir . '/letudiant/foo-bar/dev-develop', $installer->getInstallPath($package));
     }
 
@@ -518,7 +518,7 @@ class SharedPackageInstallerTest extends TestCase
         $installer = $this->createInstaller();
         $package = $this->createPackageMock();
         $package
-            ->expects($this->once())
+            ->expects($this->exactly(2))
             ->method('getTargetDir')
             ->will($this->returnValue('Some/Namespace'))
         ;

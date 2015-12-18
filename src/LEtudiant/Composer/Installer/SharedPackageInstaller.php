@@ -47,6 +47,11 @@ class SharedPackageInstaller extends LibraryInstaller
      */
     protected $filesystem;
 
+    /**
+     * @var bool
+     */
+    protected static $hasWarn = false;
+
 
     /**
      * @param IOInterface                  $io
@@ -74,21 +79,51 @@ class SharedPackageInstaller extends LibraryInstaller
     }
 
     /**
-     * @inheritdoc
+     * @param PackageInterface $package
+     *
+     * @return string
      */
     public function getInstallPath(PackageInterface $package)
     {
-        $this->initializeVendorDir();
+        $installPath = parent::getInstallPath($package);
+        $directories = explode('/', $installPath);
+        $lastDirectory = array_pop($directories);
 
-        $basePath =
+        if ($package->getPrettyVersion() !== $lastDirectory) {
+            if (!self::$hasWarn) {
+                $this->io->write('<fg=white;bg=red>[OUT OF DATE] Your "composer-shared-package-plugin" is too old for your composer version and is not maintained anymore. Please update it to ~3.0 version in your composer.json file.</fg=white;bg=red>');
+
+                self::$hasWarn = true;
+            }
+
+            $basePath =
+                $this->vendorDir . DIRECTORY_SEPARATOR
+                . $package->getPrettyName() . DIRECTORY_SEPARATOR
+                . $package->getPrettyVersion()
+            ;
+
+            $targetDir = $package->getTargetDir();
+
+            return $basePath . ($targetDir ? '/'.$targetDir : '');
+        }
+
+        return $installPath;
+    }
+
+    /**
+     * @param PackageInterface $package
+     *
+     * @return string
+     */
+    public function getPackageBasePath(PackageInterface $package)
+    {
+        $this->filesystem->ensureDirectoryExists($this->vendorDir);
+
+        return
             $this->vendorDir . DIRECTORY_SEPARATOR
             . $package->getPrettyName() . DIRECTORY_SEPARATOR
             . $package->getPrettyVersion()
         ;
-
-        $targetDir = $package->getTargetDir();
-
-        return $basePath . ($targetDir ? '/' . $targetDir : '');
     }
 
     /**
