@@ -74,19 +74,21 @@ class SharedPackageInstaller extends LibraryInstaller
     }
 
     /**
-     * @param PackageInterface $package
-     *
-     * @return string
+     * @inheritdoc
      */
-    public function getPackageBasePath(PackageInterface $package)
+    public function getInstallPath(PackageInterface $package)
     {
-        $this->filesystem->ensureDirectoryExists($this->vendorDir);
+        $this->initializeVendorDir();
 
-        return
+        $basePath =
             $this->vendorDir . DIRECTORY_SEPARATOR
             . $package->getPrettyName() . DIRECTORY_SEPARATOR
             . $package->getPrettyVersion()
         ;
+
+        $targetDir = $package->getTargetDir();
+
+        return $basePath . ($targetDir ? '/' . $targetDir : '');
     }
 
     /**
