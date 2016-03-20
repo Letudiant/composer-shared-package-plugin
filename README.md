@@ -197,6 +197,10 @@ Feel free to open an issue, fork this project or suggest an awesome new feature 
 
 ## ChangeLog
 
+### 3.0.0 :
+
+* Fix the BC update in Composer with `getInstallPath` method.
+
 ### 2.0.0 :
 
 * Implement the possibility to choice each package you want to share with the configuration `package-list` - [More information](./docs/all-available-configurations.md).
