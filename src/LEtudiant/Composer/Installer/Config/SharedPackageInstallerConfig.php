@@ -20,6 +20,10 @@ use LEtudiant\Composer\Installer\SharedPackageInstaller;
  */
 class SharedPackageInstallerConfig
 {
+    const ENV_PARAMETER_VENDOR_DIR        = 'COMPOSER_SPP_VENDOR_DIR';
+    const ENV_PARAMETER_SYMLINK_BASE_PATH = 'COMPOSER_SPP_SYMLINK_BASE_PATH';
+
+
     /**
      * @var string
      */
@@ -102,6 +106,11 @@ class SharedPackageInstallerConfig
     protected function setVendorDir($baseDir, array $extraConfigs)
     {
         $this->vendorDir = $extraConfigs[SharedPackageInstaller::PACKAGE_TYPE]['vendor-dir'];
+
+        if (false !== getenv(static::ENV_PARAMETER_VENDOR_DIR)) {
+            $this->vendorDir = getenv(static::ENV_PARAMETER_VENDOR_DIR);
+        }
+
         if ('/' != $this->vendorDir[0]) {
             $this->vendorDir = $baseDir . $this->vendorDir;
         }
@@ -118,6 +127,10 @@ class SharedPackageInstallerConfig
     {
         if (isset($extraConfigs[SharedPackageInstaller::PACKAGE_TYPE]['symlink-base-path'])) {
             $this->symlinkBasePath = $extraConfigs[SharedPackageInstaller::PACKAGE_TYPE]['symlink-base-path'];
+
+            if (false !== getenv(static::ENV_PARAMETER_SYMLINK_BASE_PATH)) {
+                $this->symlinkBasePath = getenv(static::ENV_PARAMETER_SYMLINK_BASE_PATH);
+            }
 
             // Remove the ending slash if exists
             if ('/' === $this->symlinkBasePath[strlen($this->symlinkBasePath) - 1]) {

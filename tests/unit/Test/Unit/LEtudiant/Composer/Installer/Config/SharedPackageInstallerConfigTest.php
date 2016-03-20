@@ -22,6 +22,17 @@ use LEtudiant\Composer\Installer\SharedPackageInstaller;
 class SharedPackageInstallerConfigTest extends \PHPUnit_Framework_TestCase
 {
     /**
+     * Delete both env vars
+     */
+    protected function tearDown()
+    {
+        putenv(SharedPackageInstallerConfig::ENV_PARAMETER_VENDOR_DIR);
+        putenv(SharedPackageInstallerConfig::ENV_PARAMETER_SYMLINK_BASE_PATH);
+
+        parent::tearDown();
+    }
+
+    /**
      * @test
      *
      * @expectedException \InvalidArgumentException
@@ -44,6 +55,40 @@ class SharedPackageInstallerConfigTest extends \PHPUnit_Framework_TestCase
         $this->assertEquals(sys_get_temp_dir() . '/composer-test-dependencies-dir', $this->createInstallerConfig(array(
             'vendor-dir' => $vendorDirPath
         ))->getVendorDir());
+    }
+
+    /**
+     * @test
+     *
+     * @dataProvider getVendorDirFromEnvVarDataProvider
+     *
+     * @param string $vendorDirPath
+     * @param string $envVar
+     */
+    public function getVendorDirFromEnvVar($vendorDirPath, $envVar)
+    {
+        putenv(SharedPackageInstallerConfig::ENV_PARAMETER_VENDOR_DIR . '=' . $envVar);
+
+        $this->assertEquals(sys_get_temp_dir() . '/composer-test-dependencies-dir-env-var', $this->createInstallerConfig(array(
+            'vendor-dir' => $vendorDirPath
+        ))->getVendorDir());
+    }
+
+    /**
+     * @return array
+     */
+    public function getVendorDirFromEnvVarDataProvider()
+    {
+        return array(
+            array(
+                sys_get_temp_dir() . '/composer-test-dependencies-dir',
+                sys_get_temp_dir() . '/composer-test-dependencies-dir-env-var'
+            ),
+            array(
+                'composer-test-dependencies-dir',
+                'composer-test-dependencies-dir-env-var'
+            )
+        );
     }
 
     /**
@@ -178,6 +223,19 @@ class SharedPackageInstallerConfigTest extends \PHPUnit_Framework_TestCase
     public function getSymlinkBasePathWhenRelative()
     {
         $this->assertEquals('../../../composer-test-dependencies-dir', $this->createInstallerConfig(array(
+            'vendor-dir'        => sys_get_temp_dir() . '/composer-test-dependencies-dir',
+            'symlink-base-path' => '../composer-test-dependencies-dir'
+        ))->getSymlinkBasePath());
+    }
+
+    /**
+     * @test
+     */
+    public function getSymlinkBasePathFromEnvVar()
+    {
+        putenv(SharedPackageInstallerConfig::ENV_PARAMETER_SYMLINK_BASE_PATH . '=/composer-test-dependencies-dir-env-var');
+
+        $this->assertEquals('/composer-test-dependencies-dir-env-var', $this->createInstallerConfig(array(
             'vendor-dir'        => sys_get_temp_dir() . '/composer-test-dependencies-dir',
             'symlink-base-path' => '../composer-test-dependencies-dir'
         ))->getSymlinkBasePath());
