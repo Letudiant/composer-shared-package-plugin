@@ -197,6 +197,10 @@ Feel free to open an issue, fork this project or suggest an awesome new feature 
 
 ## ChangeLog
 
+### 3.1.0
+
+* Implement environment variables, as suggested by [babwar](https://github.com/babwar), to allow to override the default configuration in `composer.json` file - [More information](./docs/all-available-configurations.md).
+
 ### 3.0.0 :
 
 * Fix the BC update in Composer with `getInstallPath` method.
