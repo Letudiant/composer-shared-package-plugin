@@ -110,7 +110,7 @@ class SharedPackageInstaller extends LibraryInstaller
         if (!is_readable($this->getInstallPath($package))) {
             parent::install($repo, $package);
         } elseif (!$repo->hasPackage($package)) {
-            $this->installBinaries($package);
+            $this->binaryInstaller->installBinaries($package, $this->getInstallPath($package));
             $repo->addPackage(clone $package);
         }
 
@@ -175,7 +175,7 @@ class SharedPackageInstaller extends LibraryInstaller
 
             parent::uninstall($repo, $package);
         } else {
-            $this->removeBinaries($package);
+            $this->binaryInstaller->removeBinaries($package);
             $repo->removePackage($package);
         }
 

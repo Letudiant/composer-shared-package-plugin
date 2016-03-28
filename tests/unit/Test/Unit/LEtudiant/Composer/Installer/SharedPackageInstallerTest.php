@@ -303,7 +303,7 @@ class SharedPackageInstallerTest extends TestCase
         $installer = $this->createInstaller($config);
         $package = $this->createPackageMock();
         $package
-            ->expects($this->exactly(4))
+            ->expects($this->exactly(5))
             ->method('getTargetDir')
             ->willReturn('target-dir')
         ;
