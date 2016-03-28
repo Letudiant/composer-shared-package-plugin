@@ -164,7 +164,7 @@ With this `composer.json`, the structure will look like :
 |       +-- foo-bar/
 |           +-- dev-develop/
 |               |-- src/
-|           |-- composer.json
+|               |-- composer.json
 |           +-- ...
 +-- project/
 +-- src/
@@ -174,7 +174,7 @@ With this `composer.json`, the structure will look like :
 |           +-- ...
 |-- vendor-shared/
 |   +-- acme/
-|       +-- foo-bar/ (symlink to "../../../dependencies/acme/foo-bar/dev-develop/")
+|       +-- foo-bar/ (symlink to "../../../composer-dependencies/acme/foo-bar/dev-develop/")
 +-- ...
 ```
 
