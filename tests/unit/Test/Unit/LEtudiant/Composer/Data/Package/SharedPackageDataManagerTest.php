@@ -125,9 +125,8 @@ class SharedPackageDataManagerTest extends \PHPUnit_Framework_TestCase
         ;
 
         $package
-            ->expects($this->exactly(2))
+            ->expects($this->never())
             ->method('getInstallationSource')
-            ->willReturn('source')
         ;
 
         $dataManager->addPackageUsage($package);
@@ -138,8 +137,7 @@ class SharedPackageDataManagerTest extends \PHPUnit_Framework_TestCase
         $this->assertJson($content);
         $this->assertEquals(array(
             'letudiant/foo-bar/dev-develop' => array(
-                'installation-source' => 'source',
-                'project-usage'       => array(
+                'project-usage' => array(
                     'letudiant/root-package'
                 )
             )
@@ -188,52 +186,13 @@ class SharedPackageDataManagerTest extends \PHPUnit_Framework_TestCase
         $this->assertJson($content);
         $this->assertEquals(array(
             'letudiant/foo-bar/dev-develop' => array(
-                'installation-source' => 'source',
+                'installation-source' => SharedPackageDataManager::PACKAGE_INSTALLATION_SOURCE,
                 'project-usage'       => array(
                     'letudiant/root-package',
                     'letudiant/root-package2'
                 )
             )
         ), json_decode($content, true));
-    }
-
-    /**
-     * @test
-     *
-     * @expectedException \RuntimeException
-     * @expectedExceptionMessage Unknown installation source for package "letudiant/foo-bar" ("dev-develop")
-     */
-    public function packageWithoutInstallationSource()
-    {
-        $dataManager = new SharedPackageDataManager($this->composer);
-        $dataManager->setVendorDir($this->vendorDir);
-
-        $this->rootPackage
-            ->expects($this->once())
-            ->method('getName')
-            ->willReturn('letudiant/root-package')
-        ;
-
-        $package = $this->getMock('Composer\Package\PackageInterface');
-        $package
-            ->expects($this->exactly(3))
-            ->method('getPrettyName')
-            ->willReturn('letudiant/foo-bar')
-        ;
-
-        $package
-            ->expects($this->exactly(3))
-            ->method('getPrettyVersion')
-            ->willReturn('dev-develop')
-        ;
-
-        $package
-            ->expects($this->once())
-            ->method('getInstallationSource')
-            ->willReturn(null)
-        ;
-
-        $dataManager->addPackageUsage($package);
     }
 
     /**
@@ -338,7 +297,7 @@ class SharedPackageDataManagerTest extends \PHPUnit_Framework_TestCase
         $this->assertJson($content);
         $this->assertEquals(array(
             'letudiant/foo-bar/dev-develop' => array(
-                'installation-source' => 'source',
+                'installation-source' => SharedPackageDataManager::PACKAGE_INSTALLATION_SOURCE,
                 'project-usage'       => array(
                     'letudiant/root-package'
                 )
@@ -354,12 +313,6 @@ class SharedPackageDataManagerTest extends \PHPUnit_Framework_TestCase
         $package = $this->getMock('Composer\Package\PackageInterface');
         $package
             ->expects($this->once())
-            ->method('getInstallationSource')
-            ->willReturn('source')
-        ;
-
-        $package
-            ->expects($this->never())
             ->method('setInstallationSource')
         ;
 
@@ -374,17 +327,11 @@ class SharedPackageDataManagerTest extends \PHPUnit_Framework_TestCase
      */
     public function setPackageInstallationSourceWhenNull()
     {
-        $package = $this->createPackage();
-        $package
-            ->expects($this->once())
-            ->method('getInstallationSource')
-            ->willReturn(null)
-        ;
-
+        $package = $this->getMock('Composer\Package\PackageInterface');
         $package
             ->expects($this->once())
             ->method('setInstallationSource')
-            ->with('source')
+            ->with(SharedPackageDataManager::PACKAGE_INSTALLATION_SOURCE)
         ;
 
         $this->initializePackageData();
@@ -398,17 +345,11 @@ class SharedPackageDataManagerTest extends \PHPUnit_Framework_TestCase
      */
     public function setPackageInstallationSourceWhenNullAndNoData()
     {
-        $package = $this->createPackage();
-        $package
-            ->expects($this->once())
-            ->method('getInstallationSource')
-            ->willReturn(null)
-        ;
-
+        $package = $this->getMock('Composer\Package\PackageInterface');
         $package
             ->expects($this->once())
             ->method('setInstallationSource')
-            ->with(null)
+            ->with(SharedPackageDataManager::PACKAGE_INSTALLATION_SOURCE)
         ;
 
         $dataManager = new SharedPackageDataManager($this->composer);
@@ -423,7 +364,7 @@ class SharedPackageDataManagerTest extends \PHPUnit_Framework_TestCase
     {
         file_put_contents($this->vendorDir . '/' . SharedPackageDataManager::PACKAGE_DATA_FILENAME, json_encode(array(
             'letudiant/foo-bar/dev-develop' => array(
-                'installation-source' => 'source',
+                'installation-source' => SharedPackageDataManager::PACKAGE_INSTALLATION_SOURCE,
                 'project-usage'       => array(
                     'letudiant/root-package'
                 )
