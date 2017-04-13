@@ -14,6 +14,7 @@ namespace Test\Unit\LEtudiant\Composer\Installer\Solver;
 use Composer\Installer\LibraryInstaller;
 use Composer\Package\Package;
 use Composer\Repository\InstalledRepositoryInterface;
+use LEtudiant\Composer\Data\Package\SharedPackageDataManager;
 use LEtudiant\Composer\Installer\Config\SharedPackageInstallerConfig;
 use LEtudiant\Composer\Installer\Solver\SharedPackageSolver;
 use LEtudiant\Composer\Installer\SharedPackageInstaller;
@@ -210,7 +211,7 @@ class SharedPackageInstallerSolverSharedTest extends SharedPackageInstallerSolve
         $package
             ->expects($this->any())
             ->method('getInstallationSource')
-            ->willReturn('source')
+            ->willReturn(SharedPackageDataManager::PACKAGE_INSTALLATION_SOURCE)
         ;
 
         return $package;

@@ -19,7 +19,8 @@ use Composer\Package\PackageInterface;
  */
 class SharedPackageDataManager implements PackageDataManagerInterface
 {
-    const PACKAGE_DATA_FILENAME = 'packages.json';
+    const PACKAGE_DATA_FILENAME       = 'packages.json';
+    const PACKAGE_INSTALLATION_SOURCE = 'source';
 
     /**
      * @var Composer
@@ -66,16 +67,9 @@ class SharedPackageDataManager implements PackageDataManagerInterface
                 unset($this->packagesData[$packageKey]);
             }
         } elseif (!isset($this->packagesData[$packageKey])) {
-            if (null == $package->getInstallationSource()) {
-                throw new \RuntimeException(
-                    'Unknown installation source for package "' . $package->getPrettyName()
-                    . '" ("' . $package->getPrettyVersion() . '")'
-                );
-            }
-
             $this->packagesData[$packageKey] = array(
-                'installation-source' => $package->getInstallationSource(),
-                'project-usage'       => $packageData
+                // Force "source" installation to ensure that we download VCS files
+                'project-usage' => $packageData
             );
         } else {
             $this->packagesData[$packageKey]['project-usage'] = $packageData;
@@ -151,16 +145,6 @@ class SharedPackageDataManager implements PackageDataManagerInterface
 
     /**
      * @param PackageInterface $package
-     *
-     * @return string|null
-     */
-    protected function getPackageInstallationSource(PackageInterface $package)
-    {
-        return $this->getPackageDataKey($package, 'installation-source');
-    }
-
-    /**
-     * @param PackageInterface $package
      * @param string           $key
      * @param mixed            $defaultValue
      *
@@ -185,8 +169,6 @@ class SharedPackageDataManager implements PackageDataManagerInterface
      */
     public function setPackageInstallationSource(PackageInterface $package)
     {
-        if (null == $package->getInstallationSource()) {
-            $package->setInstallationSource($this->getPackageInstallationSource($package));
-        }
+        $package->setInstallationSource(static::PACKAGE_INSTALLATION_SOURCE);
     }
 }

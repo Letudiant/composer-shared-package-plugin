@@ -22,6 +22,7 @@ use Composer\Repository\InstalledRepositoryInterface;
 use Composer\TestCase;
 use Composer\Util\Filesystem;
 use LEtudiant\Composer\Data\Package\PackageDataManagerInterface;
+use LEtudiant\Composer\Data\Package\SharedPackageDataManager;
 use LEtudiant\Composer\Installer\Config\SharedPackageInstallerConfig;
 use LEtudiant\Composer\Installer\SharedPackageInstaller;
 use LEtudiant\Composer\Util\SymlinkFilesystem;
@@ -647,7 +648,7 @@ class SharedPackageInstallerTest extends TestCase
         $package
             ->expects($this->any())
             ->method('getInstallationSource')
-            ->willReturn('source')
+            ->willReturn(SharedPackageDataManager::PACKAGE_INSTALLATION_SOURCE)
         ;
 
         return $package;
