@@ -35,7 +35,10 @@ class SharedPackagePlugin implements PluginInterface
     public function activate(Composer $composer, IOInterface $io)
     {
         $extraConfigs = $composer->getPackage()->getExtra();
-        $requires = $composer->getPackage()->getRequires();
+        $requires = array_merge(
+            $composer->getPackage()->getRequires(),
+            $composer->getPackage()->getDevRequires()
+        );
 
         // If plugin is only installed globally, merge extra.
         if (!isset($requires['letudiant/composer-shared-package-plugin'])) {
