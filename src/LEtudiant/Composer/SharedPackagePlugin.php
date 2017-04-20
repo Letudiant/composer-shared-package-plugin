@@ -12,6 +12,7 @@
 namespace LEtudiant\Composer;
 
 use Composer\Composer;
+use Composer\Factory;
 use Composer\Installer\LibraryInstaller;
 use Composer\IO\IOInterface;
 use Composer\Plugin\PluginInterface;
@@ -33,19 +34,39 @@ class SharedPackagePlugin implements PluginInterface
      */
     public function activate(Composer $composer, IOInterface $io)
     {
-        $config = $this->setConfig($composer);
+        $extraConfigs = $composer->getPackage()->getExtra();
+        $requires = $composer->getPackage()->getRequires();
 
-        $composer->getInstallationManager()->addInstaller(new SharedPackageInstallerSolver(
-            new SharedPackageSolver($config),
-            new SharedPackageInstaller(
-                $io,
-                $composer,
-                new SymlinkFilesystem(),
-                new SharedPackageDataManager($composer),
-                $config
-            ),
-            new LibraryInstaller($io, $composer)
-        ));
+        // If plugin is only installed globally, merge extra.
+        if (!isset($requires['letudiant/composer-shared-package-plugin'])) {
+
+            $factory = new Factory();
+            $globalComposer = $factory->createGlobal($io);
+            $globalComposerExtra = $globalComposer->getPackage()->getExtra();
+
+            if (isset($globalComposerExtra['shared-package'])) {
+                $extraConfigs = array_merge($extraConfigs, array('shared-package' => $globalComposerExtra['shared-package']));
+                $composer->getPackage()->setExtra($extraConfigs);
+            }
+        }
+
+        // Only activate if we have a vendor-dir set.
+        if (isset($extraConfigs[SharedPackageInstaller::PACKAGE_TYPE]['vendor-dir'])) {
+
+            $config = $this->setConfig($composer);
+
+            $composer->getInstallationManager()->addInstaller(new SharedPackageInstallerSolver(
+                new SharedPackageSolver($config),
+                new SharedPackageInstaller(
+                    $io,
+                    $composer,
+                    new SymlinkFilesystem(),
+                    new SharedPackageDataManager($composer),
+                    $config
+                ),
+                new LibraryInstaller($io, $composer)
+            ));
+        }
     }
 
     /**
