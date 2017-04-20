@@ -45,7 +45,7 @@ class SharedPackagePlugin implements PluginInterface
             $globalComposerExtra = $globalComposer->getPackage()->getExtra();
 
             if (isset($globalComposerExtra['shared-package'])) {
-                $extraConfigs = array_merge($extraConfigs, array('shared-package' => $globalComposerExtra['shared-package']));
+                $extraConfigs = array_merge_recursive($extraConfigs, array('shared-package' => $globalComposerExtra['shared-package']));
                 $composer->getPackage()->setExtra($extraConfigs);
             }
         }
