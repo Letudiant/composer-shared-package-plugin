@@ -15,11 +15,15 @@ use Composer\Composer;
 use Composer\Config;
 use Composer\DependencyResolver\Operation\InstallOperation;
 use Composer\DependencyResolver\Operation\UninstallOperation;
+use Composer\Downloader\DownloadManager;
 use Composer\Downloader\FilesystemException;
+use Composer\Factory;
+use Composer\Installer;
 use Composer\Installer\LibraryInstaller;
 use Composer\IO\IOInterface;
 use Composer\Package\PackageInterface;
 use Composer\Repository\InstalledRepositoryInterface;
+use LEtudiant\Composer\SharedPackagePlugin;
 use LEtudiant\Composer\Data\Package\PackageDataManagerInterface;
 use LEtudiant\Composer\Installer\Config\SharedPackageInstallerConfig;
 use LEtudiant\Composer\Util\SymlinkFilesystem;
@@ -116,6 +120,37 @@ class SharedPackageInstaller extends LibraryInstaller
 
         $this->createPackageVendorSymlink($package);
         $this->packageDataManager->addPackageUsage($package);
+
+        $binaries = $package->getBinaries();
+        if (!empty($binaries) && !file_exists($this->getInstallPath($package) . '/vendor')) {
+
+            $factory = new Factory();
+            $subcomposer = $factory->createComposer(
+                $this->io,
+                null,
+                false,
+                $this->getInstallPath($package),
+                true
+            );
+
+            // Merge extra.
+            $subcomposer->getPackage()->setExtra($this->composer->getPackage()->getExtra());
+            $subcomposer->getPackage()->setInstallationSource('source');
+
+            // Activate plugin.
+            $sharedPackage = new SharedPackagePlugin();
+            $sharedPackage->activate($subcomposer, $this->io);
+
+            // Add download manager.
+            $dm = $factory->createDownloadManager($this->io, $subcomposer->getConfig());
+            $dm->setPreferSource(true);
+            $subcomposer->setDownloadManager($dm);
+
+            // Create and run installer.
+            $install = Installer::create($this->io, $subcomposer);
+            $install->setPreferSource(true);
+            $install->run();
+        }
     }
 
     /**
