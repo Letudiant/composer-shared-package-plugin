@@ -34,6 +34,11 @@ class SharedPackagePlugin implements PluginInterface
     public function activate(Composer $composer, IOInterface $io)
     {
         $config = $this->setConfig($composer);
+        $extra = $composer->getPackage()->getExtra();
+        $disableOnWindows = isset($extra['shared-package']['disable-on-windows'])?$extra['shared-package']['disable-on-windows']:false;
+        if($disableOnWindows && strtoupper(substr(PHP_OS, 0, 3)) === 'WIN'){
+			return;
+		}
 
         $composer->getInstallationManager()->addInstaller(new SharedPackageInstallerSolver(
             new SharedPackageSolver($config),
