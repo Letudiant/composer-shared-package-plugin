@@ -62,13 +62,6 @@ class SharedPackageInstallerConfig
      */
     public function __construct($originalRelativeVendorDir, $originalAbsoluteVendorDir, $extraConfigs)
     {
-        if (!isset($extraConfigs[SharedPackageInstaller::PACKAGE_TYPE]['vendor-dir'])) {
-            throw new \InvalidArgumentException(
-                'The "vendor-dir" parameter for "' . SharedPackageInstaller::PACKAGE_TYPE . '" configuration '
-                . 'should be provided in your project composer.json ("extra" key)'
-            );
-        }
-
         $this->originalVendorDir = $originalRelativeVendorDir;
 
         $baseDir = substr($originalAbsoluteVendorDir, 0, -strlen($this->originalVendorDir));
