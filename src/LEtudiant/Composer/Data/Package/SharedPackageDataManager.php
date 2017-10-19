@@ -157,7 +157,7 @@ class SharedPackageDataManager implements PackageDataManagerInterface
         }
 
         $packageKey = $package->getPrettyName() . '/' . $package->getPrettyVersion();
-        if (!isset($this->packagesData[$packageKey])) {
+        if (!isset($this->packagesData[$packageKey]) || !isset($this->packagesData[$packageKey][$key])) {
             return $defaultValue;
         }
 
