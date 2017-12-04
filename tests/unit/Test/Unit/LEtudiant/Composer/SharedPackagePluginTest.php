@@ -24,7 +24,7 @@ use LEtudiant\Composer\SharedPackagePlugin;
  *
  * @covers \LEtudiant\Composer\SharedPackagePlugin
  */
-class SharedPackagePluginTest extends \PHPUnit_Framework_TestCase
+class SharedPackagePluginTest extends \PHPUnit\Framework\TestCase
 {
     /**
      * @var Composer
@@ -55,7 +55,7 @@ class SharedPackagePluginTest extends \PHPUnit_Framework_TestCase
         $this->composer->setConfig($config);
 
         /** @var RootPackageInterface|\PHPUnit_Framework_MockObject_MockObject $package */
-        $package = $this->getMock('Composer\Package\RootPackageInterface');
+        $package = $this->createMock('Composer\Package\RootPackageInterface');
         $package
             ->expects($this->any())
             ->method('getExtra')
@@ -67,10 +67,10 @@ class SharedPackagePluginTest extends \PHPUnit_Framework_TestCase
         ;
         $this->composer->setPackage($package);
 
-        $this->im = $this->getMock('Composer\Installer\InstallationManager');
+        $this->im = $this->createMock('Composer\Installer\InstallationManager');
         $this->composer->setInstallationManager($this->im);
 
-        $this->io = $this->getMock('Composer\IO\IOInterface');
+        $this->io = $this->createMock('Composer\IO\IOInterface');
     }
 
     /**

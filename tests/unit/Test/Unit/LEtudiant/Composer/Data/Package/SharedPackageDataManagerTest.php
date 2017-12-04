@@ -21,7 +21,7 @@ use LEtudiant\Composer\Data\Package\SharedPackageDataManager;
  *
  * @covers \LEtudiant\Composer\Data\Package\SharedPackageDataManager
  */
-class SharedPackageDataManagerTest extends \PHPUnit_Framework_TestCase
+class SharedPackageDataManagerTest extends \PHPUnit\Framework\TestCase
 {
     /**
      * @var string
@@ -58,7 +58,7 @@ class SharedPackageDataManagerTest extends \PHPUnit_Framework_TestCase
         $this->composer = new Composer();
 
         /** @var RootPackageInterface|\PHPUnit_Framework_MockObject_MockObject $rootPackage */
-        $this->rootPackage = $this->getMock('Composer\Package\RootPackageInterface');
+        $this->rootPackage = $this->createMock('Composer\Package\RootPackageInterface');
         $this->composer->setPackage($this->rootPackage);
     }
 
@@ -111,7 +111,7 @@ class SharedPackageDataManagerTest extends \PHPUnit_Framework_TestCase
             ->willReturn('letudiant/root-package')
         ;
 
-        $package = $this->getMock('Composer\Package\PackageInterface');
+        $package = $this->createMock('Composer\Package\PackageInterface');
         $package
             ->expects($this->exactly(2))
             ->method('getPrettyName')
@@ -160,7 +160,7 @@ class SharedPackageDataManagerTest extends \PHPUnit_Framework_TestCase
             ->willReturn('letudiant/root-package2')
         ;
 
-        $package = $this->getMock('Composer\Package\PackageInterface');
+        $package = $this->createMock('Composer\Package\PackageInterface');
         $package
             ->expects($this->exactly(2))
             ->method('getPrettyName')
@@ -209,7 +209,7 @@ class SharedPackageDataManagerTest extends \PHPUnit_Framework_TestCase
             ->willReturn('letudiant/root-package')
         ;
 
-        $package = $this->getMock('Composer\Package\PackageInterface');
+        $package = $this->createMock('Composer\Package\PackageInterface');
         $package
             ->expects($this->exactly(2))
             ->method('getPrettyName')
@@ -255,7 +255,7 @@ class SharedPackageDataManagerTest extends \PHPUnit_Framework_TestCase
             ))
         ;
 
-        $package = $this->getMock('Composer\Package\PackageInterface');
+        $package = $this->createMock('Composer\Package\PackageInterface');
         $package
             ->expects($this->exactly(4))
             ->method('getPrettyName')
@@ -310,7 +310,7 @@ class SharedPackageDataManagerTest extends \PHPUnit_Framework_TestCase
      */
     public function setPackageInstallationSourceWhenNotNull()
     {
-        $package = $this->getMock('Composer\Package\PackageInterface');
+        $package = $this->createMock('Composer\Package\PackageInterface');
         $package
             ->expects($this->once())
             ->method('setInstallationSource')
@@ -327,7 +327,7 @@ class SharedPackageDataManagerTest extends \PHPUnit_Framework_TestCase
      */
     public function setPackageInstallationSourceWhenNull()
     {
-        $package = $this->getMock('Composer\Package\PackageInterface');
+        $package = $this->createMock('Composer\Package\PackageInterface');
         $package
             ->expects($this->once())
             ->method('setInstallationSource')
@@ -345,7 +345,7 @@ class SharedPackageDataManagerTest extends \PHPUnit_Framework_TestCase
      */
     public function setPackageInstallationSourceWhenNullAndNoData()
     {
-        $package = $this->getMock('Composer\Package\PackageInterface');
+        $package = $this->createMock('Composer\Package\PackageInterface');
         $package
             ->expects($this->once())
             ->method('setInstallationSource')
@@ -390,7 +390,7 @@ class SharedPackageDataManagerTest extends \PHPUnit_Framework_TestCase
      */
     protected function createPackage()
     {
-        $package = $this->getMock('Composer\Package\PackageInterface');
+        $package = $this->createMock('Composer\Package\PackageInterface');
         $package
             ->expects($this->once())
             ->method('getPrettyName')

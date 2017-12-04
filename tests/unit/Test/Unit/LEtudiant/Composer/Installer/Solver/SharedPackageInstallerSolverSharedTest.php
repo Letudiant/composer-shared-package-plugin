@@ -50,7 +50,7 @@ class SharedPackageInstallerSolverSharedTest extends SharedPackageInstallerSolve
             ->getMock()
         ;
 
-        $this->repository = $this->getMock('\Composer\Repository\InstalledRepositoryInterface');
+        $this->repository = $this->createMock('\Composer\Repository\InstalledRepositoryInterface');
     }
 
     /**

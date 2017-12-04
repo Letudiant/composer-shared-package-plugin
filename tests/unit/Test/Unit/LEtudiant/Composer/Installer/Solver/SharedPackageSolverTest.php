@@ -21,7 +21,7 @@ use LEtudiant\Composer\Installer\Solver\SharedPackageSolver;
  *
  * @covers \LEtudiant\Composer\Installer\Solver\SharedPackageSolver
  */
-class SharedPackageSolverTest extends \PHPUnit_Framework_TestCase
+class SharedPackageSolverTest extends \PHPUnit\Framework\TestCase
 {
     /**
      * @var SharedPackageInstallerConfig|\PHPUnit_Framework_MockObject_MockObject
@@ -218,7 +218,7 @@ class SharedPackageSolverTest extends \PHPUnit_Framework_TestCase
      */
     public function createPackageMock($prettyName = null, $type = null)
     {
-        $package = $this->getMock('Composer\Package\PackageInterface');
+        $package = $this->createMock('Composer\Package\PackageInterface');
 
         if (null != $prettyName) {
             $package

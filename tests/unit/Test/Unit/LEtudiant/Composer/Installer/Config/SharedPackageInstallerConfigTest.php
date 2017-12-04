@@ -19,7 +19,7 @@ use LEtudiant\Composer\Installer\SharedPackageInstaller;
  *
  * @covers \LEtudiant\Composer\Installer\Config\SharedPackageInstallerConfig
  */
-class SharedPackageInstallerConfigTest extends \PHPUnit_Framework_TestCase
+class SharedPackageInstallerConfigTest extends \PHPUnit\Framework\TestCase
 {
     /**
      * Delete both env vars
