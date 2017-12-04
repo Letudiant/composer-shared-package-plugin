@@ -108,7 +108,7 @@ class SharedPackageInstallerTest extends TestCase
 
         $this->composer->setConfig($composerConfig);
 
-        $this->im = $this->getMock('Composer\Installer\InstallationManager');
+        $this->im = $this->createMock('Composer\Installer\InstallationManager');
         $this->composer->setInstallationManager($this->im);
 
         $this->vendorDir = realpath(sys_get_temp_dir()).DIRECTORY_SEPARATOR.'composer-test-vendor';
@@ -140,7 +140,7 @@ class SharedPackageInstallerTest extends TestCase
         );
 
         /** @var RootPackage|\PHPUnit_Framework_MockObject_MockObject $package */
-        $package = $this->getMock('Composer\Package\RootPackageInterface');
+        $package = $this->createMock('Composer\Package\RootPackageInterface');
         $package
             ->expects($this->any())
             ->method('getExtra')
@@ -148,8 +148,8 @@ class SharedPackageInstallerTest extends TestCase
         ;
         $this->composer->setPackage($package);
 
-        $this->repository = $this->getMock('Composer\Repository\InstalledRepositoryInterface');
-        $this->io = $this->getMock('Composer\IO\IOInterface');
+        $this->repository = $this->createMock('Composer\Repository\InstalledRepositoryInterface');
+        $this->io = $this->createMock('Composer\IO\IOInterface');
 
         $this->dataManager = $this->getMockBuilder('LEtudiant\Composer\Data\Package\SharedPackageDataManager')
             ->disableOriginalConstructor()
@@ -417,7 +417,7 @@ class SharedPackageInstallerTest extends TestCase
         ;
 
         /** @var SymlinkFilesystem|\PHPUnit_Framework_MockObject_MockObject $filesystem */
-        $filesystem = $this->getMock('\LEtudiant\Composer\Util\SymlinkFilesystem');
+        $filesystem = $this->createMock('\LEtudiant\Composer\Util\SymlinkFilesystem');
         $filesystem
             ->expects($this->once())
             ->method('removeSymlink')
@@ -467,7 +467,7 @@ class SharedPackageInstallerTest extends TestCase
         ;
 
         /** @var SymlinkFilesystem|\PHPUnit_Framework_MockObject_MockObject $filesystem */
-        $filesystem = $this->getMock('\LEtudiant\Composer\Util\SymlinkFilesystem');
+        $filesystem = $this->createMock('\LEtudiant\Composer\Util\SymlinkFilesystem');
         $filesystem
             ->expects($this->once())
             ->method('removeSymlink')

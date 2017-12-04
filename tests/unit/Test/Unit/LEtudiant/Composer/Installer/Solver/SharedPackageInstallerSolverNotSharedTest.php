@@ -24,7 +24,7 @@ use LEtudiant\Composer\Installer\Solver\SharedPackageInstallerSolver;
  *
  * @covers \LEtudiant\Composer\Installer\Solver\SharedPackageInstallerSolver
  */
-class SharedPackageInstallerSolverNotSharedTest extends \PHPUnit_Framework_TestCase
+class SharedPackageInstallerSolverNotSharedTest extends \PHPUnit\Framework\TestCase
 {
     /**
      * @var LibraryInstaller|\PHPUnit_Framework_MockObject_MockObject
@@ -49,7 +49,7 @@ class SharedPackageInstallerSolverNotSharedTest extends \PHPUnit_Framework_TestC
             ->getMock()
         ;
 
-        $this->repository = $this->getMock('\Composer\Repository\InstalledRepositoryInterface');
+        $this->repository = $this->createMock('\Composer\Repository\InstalledRepositoryInterface');
     }
 
     /**

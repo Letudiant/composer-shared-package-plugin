@@ -18,7 +18,7 @@ use LEtudiant\Composer\Util\SymlinkFilesystem;
  *
  * @covers \LEtudiant\Composer\Util\SymlinkFilesystem
  */
-class SymlinkFilesystemTest extends \PHPUnit_Framework_TestCase
+class SymlinkFilesystemTest extends \PHPUnit\Framework\TestCase
 {
     /**
      * @var string
